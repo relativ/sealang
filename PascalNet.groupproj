@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{43CCA302-BACB-4CEC-961F-8074A0EAFD31}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="mod_pascal.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="compiler\Source\PascalScript_Core_D25.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="mod_pascal">
+        <MSBuild Projects="mod_pascal.dproj"/>
+    </Target>
+    <Target Name="mod_pascal:Clean">
+        <MSBuild Projects="mod_pascal.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="mod_pascal:Make">
+        <MSBuild Projects="mod_pascal.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PascalScript_Core_D25">
+        <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj"/>
+    </Target>
+    <Target Name="PascalScript_Core_D25:Clean">
+        <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PascalScript_Core_D25:Make">
+        <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="mod_pascal;PascalScript_Core_D25"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="mod_pascal:Clean;PascalScript_Core_D25:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="mod_pascal:Make;PascalScript_Core_D25:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
