@@ -5,7 +5,7 @@ interface
 uses System.SysUtils, System.Classes, Web.HTTPApp,
   Windows, Messages, Graphics, Controls,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
-  Menus, uPSC_comobj, uPSR_comobj, uPSComponent;
+  Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp;
 
 type
   TPascalModule = class(TWebModule)
@@ -19,6 +19,10 @@ type
     procedure MyOnCompile(Sender: TPSScript);
     procedure OnExecImport(Sender: TObject; se: TPSExec;
       x: TPSRuntimeClassImporter);
+    procedure MyOnExecute(Sender: TPSScript);
+    procedure echo(s: string);
+    procedure Write(s: string);
+    procedure Writeln(s: string);
   public
     { Public declarations }
   end;
@@ -49,7 +53,6 @@ var
   Line: integer;
   IgnoreRunline: Boolean = False;
   FCompilerOutput: string;
-  _Request: TWebRequest; _Response: TWebResponse;
 
 
 procedure RunLine(Sender: TPSExec);
@@ -159,19 +162,21 @@ begin
 end;
 
 
-procedure Writeln(s: string);
+
+
+procedure TPascalModule.Write(s: string);
 begin
-  _Response.Content := _Response.Content + s+ #13#10;
+  Response.Content := Response.Content + s;
 end;
 
-procedure Write(s: string);
+procedure TPascalModule.Writeln(s: string);
 begin
-  _Response.Content := _Response.Content + s;
+  Write(s+ #13#10);
 end;
 
-procedure echo(s:string);
+procedure TPascalModule.echo(s:string);
 begin
-  _Response.Content := _Response.Content + s;
+  Write(s);
 end;
 
 function Replace(const S, OldPattern, NewPattern: string): string;
@@ -179,31 +184,47 @@ begin
   result := StringReplace(S, OldPattern, NewPattern, [rfReplaceAll]);
 end;
 
-procedure TPascalModule.MyOnCompile(Sender: TPSScript);
+procedure TPascalModule.MyOnExecute(Sender: TPSScript);
 begin
-  Sender.AddFunction(@Writeln, 'procedure Writeln(s: string)');
-  Sender.AddFunction(@Write, 'procedure Write(s: string)');
-  Sender.AddFunction(@echo, 'procedure echo(s: string)');
+  Sender.SetVarToInstance('RESPONSE', Response);
+  Sender.SetVarToInstance('REQUEST', Request);
+end;
 
-  Sender.AddFunction(@StringReplace, 'function Replace(const S, OldPattern, NewPattern: string): string;');
+procedure TPascalModule.MyOnCompile(Sender: TPSScript);
+var
+  wResponse, wRequest: TPSCompileTimeClass;
+begin
+  Sender.AddMethod(self, @TPascalModule.Writeln, 'procedure Writeln(s: string)');
+  Sender.AddMethod(self, @TPascalModule.Write, 'procedure Write(s: string)');
+  Sender.AddMethod(self, @TPascalModule.echo, 'procedure echo(s: string)');
+
+
+  Sender.AddFunction(@Replace, 'function Replace(const S, OldPattern, NewPattern: string): string;');
   Sender.AddFunction(@ExtractFilePath, 'function ExtractFilePath(const FileName: string): string;');
   Sender.AddFunction(@ExtractFileDir, 'function ExtractFileDir(const FileName: string): string;');
   Sender.AddFunction(@ExtractFileName, 'function ExtractFileName(const FileName: string): string;');
   Sender.AddFunction(@ExtractFileExt, 'function ExtractFileExt(const FileName: string): string;');
 
 
+  RegisterDateTimeLibrary_C(Sender.Comp);
   SIRegister_Std(Sender.Comp);
   SIRegister_Classes(Sender.Comp, True);
   SIRegister_Graphics(Sender.Comp, True);
   SIRegister_Controls(Sender.Comp);
   SIRegister_stdctrls(Sender.Comp);
-  //SIRegister_Forms(Sender.Comp);
+  SIRegister_Forms(Sender.Comp);
   SIRegister_ComObj(Sender.Comp);
+
+  SIRegister_HTTPApp(Sender.Comp);
+
+  Sender.AddRegisteredVariable('RESPONSE', 'TWebResponse');
+  Sender.AddRegisteredVariable('REQUEST', 'TWebRequest');
 
 end;
 
 procedure TPascalModule.OnExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
 begin
+
   RIRegister_Std(x);
   RIRegister_Classes(x,true);
   RIRegister_Controls(x);
@@ -211,6 +232,10 @@ begin
   RegisterDLLRuntime(se);
   RegisterClassLibraryRuntime(se, x);
   RIRegister_ComObj(se);
+  RIRegisterTObject(x);
+
+  RIRegister_HTTPApp(x);
+  RIRegister_HTTPApp_Routines(se);
 end;
 
 
@@ -253,12 +278,14 @@ begin
 
     PSScript:= TPSScript.Create(nil);
     PSScript.Script.Text := sCode;
+
     //PSScript.SetPointerToData('Request', @Request, PSScript.FindNamedType('TWebRequest'));
     //PSScript.SetPointerToData('Response', @Response, PSScript.FindNamedType('TWebResponse'));
     //PSScript.SetVarToInstance('Request', Request);
     //PSScript.SetVarToInstance('Response', Response);
     PSScript.OnCompile := MyOnCompile;
     PSScript.OnExecImport := OnExecImport;
+    PSScript.OnExecute := MyOnExecute;
     PSScript.Comp.OnExternalProc := DllExternalProc;
     PSScript.Comp.AllowNoEnd := true;
     if PSScript.Compile() then
@@ -287,8 +314,6 @@ begin
   Response.Content := Response.Content + 'ScriptName : '+Request.ScriptName + '<br>';
   Response.Content := Response.Content + 'InternalPathInfo : '+Request.InternalPathInfo + '<br>';
    }
-  _Request := Request;
-  _Response := Response;
 
   Compile(Request, Response);
   Response.SendResponse;

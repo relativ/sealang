@@ -49,7 +49,8 @@ uses
   uPSR_std in 'compiler\Source\uPSR_std.pas',
   uPSR_stdctrls in 'compiler\Source\uPSR_stdctrls.pas',
   uPSRuntime in 'compiler\Source\uPSRuntime.pas',
-  uPSUtils in 'compiler\Source\uPSUtils.pas';
+  uPSUtils in 'compiler\Source\uPSUtils.pas',
+  uPSI_HTTPApp in 'utils\uPSI_HTTPApp.pas';
 
 {$R *.res}
 
