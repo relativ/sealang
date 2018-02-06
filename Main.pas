@@ -60,34 +60,87 @@ begin
   //if i = 0 then Application.ProcessMessages;
 end;
 
+function ParseScriptLine(lineCode: string): string;
+var
+  sLineCode,strLine, tmpStr: string;
+begin
+  strLine := lineCode;
+    while(Pos('<?pas',strLine) > 0) do
+    begin
+      tmpStr := copy(strLine, 0, Pos('<?pas',strLine) - 1);
+      if tmpStr <> '' then
+      begin
+        tmpStr := StringReplace(tmpStr, chr(39), chr(39) + chr(39), [rfReplaceAll]);
+        sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ';
+        Delete(strLine, 0, Pos('<?pas',strLine) -1);
+      end;
+
+      //tmpStr := copy(strLine, Pos('<?pas',strLine) + 4, Length(strLine)) + #1310;
+      Delete(strLine, 1, Pos('<?pas',strLine) + 4);
+      if Pos('?>',strLine) > 0 then
+      begin
+        tmpStr := copy(strLine, 0 , Pos('?>',strLine) - 1);
+        Delete(strLine, 0, Pos('?>',strLine) + 1);
+      end else
+        tmpStr := strLine + ' ';
+
+      sLineCode := sLineCode + tmpStr + #13#10;
+    end;
+
+  result := sLineCode;
+
+end;
+
 function ParsePascalCodes(code: string): string;
   var
     sList: TStringList;
     I: integer;
-    bStartCode: boolean;
-    sLineCode,strLine: string;
+    bStartCode, bEndCode, bOnylCode: boolean;
+    sLineCode,strLine, tmpStr: string;
   begin
-    sLineCode := StringReplace(code, '?>', '', [rfReplaceAll]);
-    sLineCode := StringReplace(sLineCode, '<?pas', '', [rfReplaceAll]);
-    {sList:= TStringList.Create;
+    sList:= TStringList.Create;
     sList.Text := code;
+
+    bStartCode := false;
+    bEndCode   := true;
     for I := 0 to sList.Count -1 do
     begin
       strLine := sList[I];
       if Pos('<?pas',strLine) > 0  then
+      begin
         bStartCode := true;
+        bEndCode := false;
+        bOnylCode := false;
+      end else if Pos('?>',strLine) > 0  then
+      begin
+        bStartCode := false;
+        bEndCode := true;
+        bOnylCode := false;
+      end else if bStartCode then
+      begin
+        bOnylCode := true;
+        bStartCode := false;
+      end;
 
       if bStartCode then
       begin
-        if Pos('<?pas',strLine) > 0 then
-          sLineCode := sLineCode + copy(strLine, Pos('<?pas',strLine) + 5, Length(strLine)) + #1310
-        else
-           sLineCode := sLineCode + strLine + #1310;
-        sLineCode := StringReplace(sLineCode, '?>', '', [rfReplaceAll]);
+          sLineCode := sLineCode + ParseScriptLine(strLine);
+      end else if bEndCode then
+      begin
+        strLine := StringReplace(strLine, '?>', '', [rfReplaceAll]);
+        if Trim(strLine) <> '' then
+        begin
+          tmpStr := StringReplace(strLine, chr(39), chr(39) + chr(39), [rfReplaceAll]);
+          sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ' + #13#10;
+        end;
+      end else if bOnylCode then
+      begin
+        sLineCode := sLineCode + strLine + #13#10;
       end;
 
+
     end;
-    }
+
 
     Result := sLineCode;
   end;
@@ -121,11 +174,24 @@ begin
   _Response.Content := _Response.Content + s;
 end;
 
+function Replace(const S, OldPattern, NewPattern: string): string;
+begin
+  result := StringReplace(S, OldPattern, NewPattern, [rfReplaceAll]);
+end;
+
 procedure TPascalModule.MyOnCompile(Sender: TPSScript);
 begin
   Sender.AddFunction(@Writeln, 'procedure Writeln(s: string)');
-  Sender.AddFunction(@Writeln, 'procedure Write(s: string)');
+  Sender.AddFunction(@Write, 'procedure Write(s: string)');
   Sender.AddFunction(@echo, 'procedure echo(s: string)');
+
+  Sender.AddFunction(@StringReplace, 'function Replace(const S, OldPattern, NewPattern: string): string;');
+  Sender.AddFunction(@ExtractFilePath, 'function ExtractFilePath(const FileName: string): string;');
+  Sender.AddFunction(@ExtractFileDir, 'function ExtractFileDir(const FileName: string): string;');
+  Sender.AddFunction(@ExtractFileName, 'function ExtractFileName(const FileName: string): string;');
+  Sender.AddFunction(@ExtractFileExt, 'function ExtractFileExt(const FileName: string): string;');
+
+
   SIRegister_Std(Sender.Comp);
   SIRegister_Classes(Sender.Comp, True);
   SIRegister_Graphics(Sender.Comp, True);

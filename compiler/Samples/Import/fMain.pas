@@ -106,6 +106,7 @@ begin
   begin
     TPSPascalCompiler(Sender).AddFunction('procedure Writeln(s: string);');
     TPSPascalCompiler(Sender).AddFunction('function Readln(question: string): string;');
+
     Sender.AddDelphiFunction('function ImportTest(S1: string; s2: Longint; s3: Byte; s4: word; var s5: string): string;');
 
     Sender.AddConstantN('NaN', 'extended').Value.textended := 0.0 / 0.0;
