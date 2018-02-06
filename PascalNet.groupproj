@@ -9,9 +9,6 @@
         <Projects Include="compiler\Source\PascalScript_Core_D25.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="compiler\Samples\Import\Import.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -38,23 +35,14 @@
     <Target Name="PascalScript_Core_D25:Make">
         <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj" Targets="Make"/>
     </Target>
-    <Target Name="Import">
-        <MSBuild Projects="compiler\Samples\Import\Import.dproj"/>
-    </Target>
-    <Target Name="Import:Clean">
-        <MSBuild Projects="compiler\Samples\Import\Import.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="Import:Make">
-        <MSBuild Projects="compiler\Samples\Import\Import.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="mod_pascal;PascalScript_Core_D25;Import"/>
+        <CallTarget Targets="mod_pascal;PascalScript_Core_D25"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="mod_pascal:Clean;PascalScript_Core_D25:Clean;Import:Clean"/>
+        <CallTarget Targets="mod_pascal:Clean;PascalScript_Core_D25:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="mod_pascal:Make;PascalScript_Core_D25:Make;Import:Make"/>
+        <CallTarget Targets="mod_pascal:Make;PascalScript_Core_D25:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
