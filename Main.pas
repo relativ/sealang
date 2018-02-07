@@ -77,7 +77,7 @@ begin
       begin
         tmpStr := StringReplace(tmpStr, chr(39), chr(39) + chr(39), [rfReplaceAll]);
         sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ';
-        Delete(strLine, 0, Pos('<?pas',strLine) -1);
+        Delete(strLine, 1, Pos('<?pas',strLine) -1);
       end;
 
       //tmpStr := copy(strLine, Pos('<?pas',strLine) + 4, Length(strLine)) + #1310;
@@ -85,11 +85,18 @@ begin
       if Pos('?>',strLine) > 0 then
       begin
         tmpStr := copy(strLine, 0 , Pos('?>',strLine) - 1);
-        Delete(strLine, 0, Pos('?>',strLine) + 1);
+        Delete(strLine, 1, Pos('?>',strLine) + 1);
       end else
         tmpStr := strLine + ' ';
 
       sLineCode := sLineCode + tmpStr + #13#10;
+    end;
+
+    if strLine <> '' then
+    begin
+        tmpStr := StringReplace(strLine, chr(39), chr(39) + chr(39), [rfReplaceAll]);
+        sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ';
+        strLine := '';
     end;
 
   result := sLineCode;
@@ -305,6 +312,7 @@ begin
   Response.Content := Response.Content + 'ScriptName : '+Request.ScriptName + '<br>';
   Response.Content := Response.Content + 'InternalPathInfo : '+Request.InternalPathInfo + '<br>';
    }
+
 
   Compile(Request, Response);
   Response.SendResponse;
