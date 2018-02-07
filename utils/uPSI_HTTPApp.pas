@@ -14,6 +14,7 @@ uses
   ,uPSComponent
   ,uPSRuntime
   ,uPSCompiler
+  ,MultipartParser
   ;
 
 type
@@ -148,6 +149,13 @@ begin
     RegisterProperty('Stream', 'TStream', iptr);
     RegisterProperty('ContentType', 'AnsiString', iptr);
   end;
+
+  with CL.AddClassN(CL.FindClass('TAbstractWebRequestFile'),'TMultiPartHTTPFile') do
+  begin
+    RegisterMethod('constructor Create(const Data; dataSize : LongWord; const ContentType, FieldName, FileName : string);');
+    RegisterMethod('procedure SaveToFile(SaveAsFile: string);');
+    RegisterMethod('procedure SaveToStream(Stream: TStream);');
+  end;
 end;
 
 (*----------------------------------------------------------------------------*)
@@ -160,6 +168,12 @@ begin
     SetDefaultPropery('Items');
     RegisterProperty('Count', 'Integer', iptr);
   end;
+
+  with CL.AddClassN(CL.FindClass('TAbstractWebRequestFiles'),'') do
+  begin
+    RegisterMethod('procedure Clear;');
+    RegisterMethod('function Add(AObject: TMultiPartHTTPFile): Integer;');
+  end;
 end;
 
 (*----------------------------------------------------------------------------*)
@@ -168,6 +182,11 @@ begin
   //with RegClassS(CL,'TAbstractContentParser', 'TContentParser') do
   with CL.AddClassN(CL.FindClass('TAbstractContentParser'),'TContentParser') do
   begin
+  end;
+
+  with CL.AddClassN(CL.FindClass('TAbstractContentParser'),'TMultiPartContentParser') do
+  begin
+    RegisterMethod('procedure Parse;')
   end;
 end;
 

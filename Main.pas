@@ -5,7 +5,8 @@ interface
 uses System.SysUtils, System.Classes, Web.HTTPApp,
   Windows, Messages, Graphics, Controls,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
-  Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp;
+  Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
+  MultipartParser;
 
 type
   TPascalModule = class(TWebModule)
@@ -42,7 +43,8 @@ uses
   uPSC_classes,
   uPSR_graphics,
   uPSR_controls,
-  uPSR_classes;
+  uPSR_classes,
+  ExternalFunctions;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
@@ -179,11 +181,6 @@ begin
   Write(s);
 end;
 
-function Replace(const S, OldPattern, NewPattern: string): string;
-begin
-  result := StringReplace(S, OldPattern, NewPattern, [rfReplaceAll]);
-end;
-
 procedure TPascalModule.MyOnExecute(Sender: TPSScript);
 begin
   Sender.SetVarToInstance('RESPONSE', Response);
@@ -191,19 +188,12 @@ begin
 end;
 
 procedure TPascalModule.MyOnCompile(Sender: TPSScript);
-var
-  wResponse, wRequest: TPSCompileTimeClass;
 begin
   Sender.AddMethod(self, @TPascalModule.Writeln, 'procedure Writeln(s: string)');
   Sender.AddMethod(self, @TPascalModule.Write, 'procedure Write(s: string)');
   Sender.AddMethod(self, @TPascalModule.echo, 'procedure echo(s: string)');
 
-
-  Sender.AddFunction(@Replace, 'function Replace(const S, OldPattern, NewPattern: string): string;');
-  Sender.AddFunction(@ExtractFilePath, 'function ExtractFilePath(const FileName: string): string;');
-  Sender.AddFunction(@ExtractFileDir, 'function ExtractFileDir(const FileName: string): string;');
-  Sender.AddFunction(@ExtractFileName, 'function ExtractFileName(const FileName: string): string;');
-  Sender.AddFunction(@ExtractFileExt, 'function ExtractFileExt(const FileName: string): string;');
+  ImplementFucntions(Sender);
 
 
   RegisterDateTimeLibrary_C(Sender.Comp);
@@ -307,6 +297,7 @@ end;
 
 procedure TPascalModule.PascalModuleDefaultHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+
 begin
   {Response.Content := 'PathTranslated : '+Request.PathTranslated + '<br>';
   Response.Content := Response.Content + 'PathInfo : '+Request.PathInfo + '<br>';
