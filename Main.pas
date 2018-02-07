@@ -15,7 +15,8 @@ type
     procedure PascalModuleDefaultHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
-    
+
+    AppPath: string;
     procedure Compile(Request: TWebRequest; Response: TWebResponse);
     procedure MyOnCompile(Sender: TPSScript);
     procedure OnExecImport(Sender: TObject; se: TPSExec;
@@ -24,6 +25,7 @@ type
     procedure echo(s: string);
     procedure Write(s: string);
     procedure Writeln(s: string);
+    function ParsePascalCodes(code: string): string;
   public
     { Public declarations }
   end;
@@ -65,58 +67,76 @@ begin
   //if i = 0 then Application.ProcessMessages;
 end;
 
+function StringLoadFile(const Filename: string): string;
+var
+  sList: TStringList;
+begin
+  sList:= TStringList.Create;
+  try
+    sList.LoadFromFile(Filename);
+    Result := sList.Text;
+  finally
+    sList.Free;
+  end;
+end;
+
 function ParseScriptLine(lineCode: string): string;
 var
   sLineCode,strLine, tmpStr: string;
 begin
   strLine := lineCode;
-    while(Pos('<?pas',strLine) > 0) do
+
+  while(Pos('<?pas',strLine) > 0) do
+  begin
+    tmpStr := copy(strLine, 0, Pos('<?pas',strLine) - 1);
+    if tmpStr <> '' then
     begin
-      tmpStr := copy(strLine, 0, Pos('<?pas',strLine) - 1);
-      if tmpStr <> '' then
-      begin
-        tmpStr := StringReplace(tmpStr, chr(39), chr(39) + chr(39), [rfReplaceAll]);
-        sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ';
-        Delete(strLine, 1, Pos('<?pas',strLine) -1);
-      end;
-
-      //tmpStr := copy(strLine, Pos('<?pas',strLine) + 4, Length(strLine)) + #1310;
-      Delete(strLine, 1, Pos('<?pas',strLine) + 4);
-      if Pos('?>',strLine) > 0 then
-      begin
-        tmpStr := copy(strLine, 0 , Pos('?>',strLine) - 1);
-        Delete(strLine, 1, Pos('?>',strLine) + 1);
-      end else
-        tmpStr := strLine + ' ';
-
-      sLineCode := sLineCode + tmpStr + #13#10;
+      tmpStr := StringReplace(tmpStr, chr(39), chr(39) + chr(39), [rfReplaceAll]);
+      sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ';
+      Delete(strLine, 1, Pos('<?pas',strLine) -1);
     end;
 
-    if strLine <> '' then
+    //tmpStr := copy(strLine, Pos('<?pas',strLine) + 4, Length(strLine)) + #1310;
+    Delete(strLine, 1, Pos('<?pas',strLine) + 4);
+    if Pos('?>',strLine) > 0 then
     begin
-        tmpStr := StringReplace(strLine, chr(39), chr(39) + chr(39), [rfReplaceAll]);
-        sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ';
-        strLine := '';
-    end;
+      tmpStr := copy(strLine, 0 , Pos('?>',strLine) - 1);
+      Delete(strLine, 1, Pos('?>',strLine) + 1);
+    end else
+      tmpStr := strLine + ' ';
+
+    sLineCode := sLineCode + tmpStr + #13#10;
+  end;
+
+  if strLine <> '' then
+  begin
+      tmpStr := StringReplace(strLine, chr(39), chr(39) + chr(39), [rfReplaceAll]);
+      sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ';
+      strLine := '';
+  end;
 
   result := sLineCode;
 
 end;
 
-function ParsePascalCodes(code: string): string;
+function TPascalModule.ParsePascalCodes(code: string): string;
   var
-    sList: TStringList;
+    sList, tmpList: TStringList;
     I: integer;
     bStartCode, bEndCode, bOnylCode: boolean;
-    sLineCode,strLine, tmpStr: string;
+    sLineCode,strLine, tmpStr, strInclude: string;
+    A: Integer;
+  label StartParsing;
   begin
     sList:= TStringList.Create;
     sList.Text := code;
 
     bStartCode := false;
     bEndCode   := true;
-    for I := 0 to sList.Count -1 do
+    I := 0;
+    while I < sList.Count do
     begin
+      StartParsing:
       strLine := sList[I];
       if Pos('<?pas',strLine) > 0  then
       begin
@@ -147,30 +167,32 @@ function ParsePascalCodes(code: string): string;
         end;
       end else if bOnylCode then
       begin
-        sLineCode := sLineCode + strLine + #13#10;
+          if Pos('{$I', strLine) > 0 then
+          begin
+            tmpStr := strLine;
+
+            Delete(tmpStr, 1, Pos(chr(39), tmpStr));
+            strInclude := Copy(tmpStr, 0, Pos(chr(39), tmpStr) - 1);
+            strInclude := StringLoadFile( AppPath + strInclude);
+
+            tmpStr := Copy(strLine, Pos('{$I', strLine), Pos('}', strLine) + 1 );
+
+            sList.Text := StringReplace(sList.Text, tmpStr, strInclude, [rfReplaceAll]);
+
+            goto StartParsing;
+
+
+          end else
+            sLineCode := sLineCode + strLine + #13#10;
       end;
 
+      Inc(I);
 
     end;
 
 
     Result := sLineCode;
   end;
-
-function StringLoadFile(const Filename: string): string;
-var
-  sList: TStringList;
-begin
-  sList:= TStringList.Create;
-  try
-    sList.LoadFromFile(Filename);
-    Result := sList.Text;
-  finally
-    sList.Free;
-  end;
-end;
-
-
 
 
 procedure TPascalModule.Write(s: string);
@@ -285,6 +307,8 @@ begin
     PSScript.OnExecute := MyOnExecute;
     PSScript.Comp.OnExternalProc := DllExternalProc;
     PSScript.Comp.AllowNoEnd := true;
+    PSScript.Comp.AllowNoBegin := true;
+    PSScript.Comp.AllowUnit := true;
     if PSScript.Compile() then
     begin
       PSScript.Execute();
@@ -304,7 +328,6 @@ end;
 
 procedure TPascalModule.PascalModuleDefaultHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-
 begin
   {Response.Content := 'PathTranslated : '+Request.PathTranslated + '<br>';
   Response.Content := Response.Content + 'PathInfo : '+Request.PathInfo + '<br>';
@@ -313,10 +336,17 @@ begin
   Response.Content := Response.Content + 'InternalPathInfo : '+Request.InternalPathInfo + '<br>';
    }
 
+  try
+  AppPath := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
+  AppPath := ExtractFilePath(AppPath);
+
 
   Compile(Request, Response);
   Response.SendResponse;
   Handled := true;
+  except on E: Exception do
+    echo (E.Message + '<br/><br/>' + E.StackTrace);
+  end;
 end;
 
 procedure TPascalModule.WebModuleException(Sender: TObject; E: Exception;
