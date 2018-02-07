@@ -126,10 +126,13 @@ function TPascalModule.ParsePascalCodes(code: string): string;
     bStartCode, bEndCode, bOnylCode: boolean;
     sLineCode,strLine, tmpStr, strInclude: string;
     A: Integer;
+    sIncludeList: TStringList;
   label StartParsing;
   begin
     sList:= TStringList.Create;
     sList.Text := code;
+
+    sIncludeList:= TStringList.Create;
 
     bStartCode := false;
     bEndCode   := true;
@@ -173,13 +176,18 @@ function TPascalModule.ParsePascalCodes(code: string): string;
 
             Delete(tmpStr, 1, Pos(chr(39), tmpStr));
             strInclude := Copy(tmpStr, 0, Pos(chr(39), tmpStr) - 1);
-            strInclude := StringLoadFile( AppPath + strInclude);
 
-            tmpStr := Copy(strLine, Pos('{$I', strLine), Pos('}', strLine) + 1 );
+            if sIncludeList.IndexOf(strInclude) = -1 then
+            begin
+              sIncludeList.Add(strInclude);
+              strInclude := StringLoadFile( AppPath + strInclude);
 
-            sList.Text := StringReplace(sList.Text, tmpStr, strInclude, [rfReplaceAll]);
+              tmpStr := Copy(strLine, Pos('{$I', strLine), Pos('}', strLine) + 1 );
 
-            goto StartParsing;
+              sList.Text := StringReplace(sList.Text, tmpStr, strInclude, [rfReplaceAll]);
+
+              goto StartParsing;
+            end;
 
 
           end else
