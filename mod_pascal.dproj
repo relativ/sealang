@@ -139,6 +139,8 @@
         <DCCReference Include="utils\uPSI_HTTPApp.pas"/>
         <DCCReference Include="utils\ExternalFunctions.pas"/>
         <DCCReference Include="utils\MultipartParser.pas"/>
+        <DCCReference Include="utils\MVCFramework.Session.pas"/>
+        <DCCReference Include="library\Session.pas"/>
         <None Include="compiler\Source\PascalScript_Core_D25.dpk"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

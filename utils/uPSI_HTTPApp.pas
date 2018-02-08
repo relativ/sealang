@@ -15,6 +15,7 @@ uses
   ,uPSRuntime
   ,uPSCompiler
   ,MultipartParser
+  ,Session
   ;
 
 type
@@ -30,6 +31,7 @@ type
 procedure SIRegister_TWebResponse(CL: TPSPascalCompiler);
 procedure SIRegister_TCookieCollection(CL: TPSPascalCompiler);
 procedure SIRegister_TCookie(CL: TPSPascalCompiler);
+procedure SIRegister_TSession(CL: TPSPascalCompiler);
 procedure SIRegister_TAbstractWebRequestFile(CL: TPSPascalCompiler);
 procedure SIRegister_TAbstractWebRequestFiles(CL: TPSPascalCompiler);
 procedure SIRegister_TContentParser(CL: TPSPascalCompiler);
@@ -42,6 +44,7 @@ procedure RIRegister_HTTPApp_Routines(S: TPSExec);
 procedure RIRegister_TWebResponse(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TCookieCollection(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TCookie(CL: TPSRuntimeClassImporter);
+procedure RIRegister_TSession(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TAbstractWebRequestFile(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TAbstractWebRequestFiles(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TContentParser(CL: TPSRuntimeClassImporter);
@@ -137,6 +140,19 @@ begin
     RegisterProperty('HeaderValue', 'AnsiString', iptr);
   end;
 end;
+
+procedure SIRegister_TSession(CL: TPSPascalCompiler);
+begin
+  with CL.AddClassN(CL.FindClass('TObject'),'TSession') do
+  begin
+    RegisterMethod('Constructor Create');
+    RegisterProperty('SessionID', 'AnsiString', iptrw);
+    RegisterMethod('procedure SetValue(name, value: AnsiString);');
+    RegisterMethod('procedure Delete(name: AnsiString);');
+    RegisterMethod('function GetValue(name: AnsiString): AnsiString;');
+  end;
+end;
+
 
 (*----------------------------------------------------------------------------*)
 procedure SIRegister_TAbstractWebRequestFile(CL: TPSPascalCompiler);
@@ -284,6 +300,7 @@ begin
   SIRegister_TAbstractWebRequestFile(CL);
   SIRegister_TCookie(CL);
   SIRegister_TCookieCollection(CL);
+  SIRegister_TSession(CL);
   SIRegister_TWebResponse(CL);
  CL.AddDelphiFunction('Function DosPathToUnixPath( const Path : string) : string');
  CL.AddDelphiFunction('Function HTTPDecode( const AStr : AnsiString) : AnsiString');
@@ -529,6 +546,14 @@ begin Self.Secure := T; end;
 (*----------------------------------------------------------------------------*)
 procedure TCookieSecure_R(Self: TCookie; var T: Boolean);
 begin T := Self.Secure; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSessionSessionID_W(Self: TSession; const T: AnsiString);
+begin Self.SessionID := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSessionSessionID_R(Self: TSession; var T: AnsiString);
+begin T := Self.SessionID; end;
 
 (*----------------------------------------------------------------------------*)
 procedure TCookieExpires_W(Self: TCookie; const T: TDateTime);
@@ -844,6 +869,18 @@ begin
   end;
 end;
 
+procedure RIRegister_TSession(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TSession) do
+  begin
+    RegisterConstructor(@TSession.Create, 'Create');
+    RegisterPropertyHelper(@TSessionSessionID_R,@TSessionSessionID_W,'SessionID');
+
+  end;
+end;
+
+
+
 (*----------------------------------------------------------------------------*)
 procedure RIRegister_TAbstractWebRequestFile(CL: TPSRuntimeClassImporter);
 begin
@@ -958,6 +995,8 @@ begin
   RIRegister_TAbstractWebRequestFile(CL);
   RIRegister_TCookie(CL);
   RIRegister_TCookieCollection(CL);
+  with CL.Add(TSession) do
+  RIRegister_TSession(CL);
   RIRegister_TWebResponse(CL);
 end;
 

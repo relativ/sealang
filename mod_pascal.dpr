@@ -52,7 +52,9 @@ uses
   uPSUtils in 'compiler\Source\uPSUtils.pas',
   uPSI_HTTPApp in 'utils\uPSI_HTTPApp.pas',
   ExternalFunctions in 'utils\ExternalFunctions.pas',
-  MultipartParser in 'utils\MultipartParser.pas';
+  MultipartParser in 'utils\MultipartParser.pas',
+  MVCFramework.Session in 'utils\MVCFramework.Session.pas',
+  Session in 'library\Session.pas';
 
 {$R *.res}
 
@@ -83,6 +85,7 @@ exports
 begin
   CoInitFlags := COINIT_MULTITHREADED;
   Web.ApacheApp.InitApplication(@GModuleData);
+
   Application.Initialize;
   Application.WebModuleClass := WebModuleClass;
   Application.Run;

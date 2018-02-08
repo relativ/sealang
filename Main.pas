@@ -6,7 +6,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   Windows, Messages, Graphics, Controls,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
-  MultipartParser;
+  MultipartParser, MVCFramework.Session, Session;
 
 type
   TPascalModule = class(TWebModule)
@@ -14,8 +14,10 @@ type
       var Handled: Boolean);
     procedure PascalModuleDefaultHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModuleCreate(Sender: TObject);
+    procedure WebModuleDestroy(Sender: TObject);
   private
-
+    Session : TSession;
     AppPath: string;
     procedure Compile(Request: TWebRequest; Response: TWebResponse);
     procedure MyOnCompile(Sender: TPSScript);
@@ -27,11 +29,13 @@ type
     procedure Writeln(s: string);
     function ParsePascalCodes(code: string): string;
   public
-    { Public declarations }
+
   end;
 
 var
   WebModuleClass: TComponentClass = TPascalModule;
+
+  function GetSessionID(Request: TWebRequest; Response: TWebResponse): string;
 
 implementation
 
@@ -181,13 +185,14 @@ function TPascalModule.ParsePascalCodes(code: string): string;
             begin
               sIncludeList.Add(strInclude);
               strInclude := StringLoadFile( AppPath + strInclude);
+              strInclude:= ParsePascalCodes(strInclude);
 
               tmpStr := Copy(strLine, Pos('{$I', strLine), Pos('}', strLine) + 1 );
 
               sList.Text := StringReplace(sList.Text, tmpStr, strInclude, [rfReplaceAll]);
 
               goto StartParsing;
-            end;
+            end else raise Exception.Create('Circular include ' + strInclude);
 
 
           end else
@@ -222,6 +227,7 @@ procedure TPascalModule.MyOnExecute(Sender: TPSScript);
 begin
   Sender.SetVarToInstance('RESPONSE', Response);
   Sender.SetVarToInstance('REQUEST', Request);
+  Sender.SetVarToInstance('SESSION', Session);
 end;
 
 procedure TPascalModule.MyOnCompile(Sender: TPSScript);
@@ -246,6 +252,7 @@ begin
 
   Sender.AddRegisteredVariable('RESPONSE', 'TWebResponse');
   Sender.AddRegisteredVariable('REQUEST', 'TWebRequest');
+  Sender.AddRegisteredVariable('SESSION', 'TSession');
 
 end;
 
@@ -273,6 +280,8 @@ var
   sCode, d: AnsiString;
   mainFileName: string;
   i: integer;
+  SessionID: string;
+
 
   procedure Outputtxt(const s: string);
   begin
@@ -298,6 +307,10 @@ var
 
 begin
   try
+
+    SessionID := GetSessionID(Request, Response);
+
+    Session.SessionID := SessionID;
     mainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
 
     sCode := StringLoadFile(mainFileName);
@@ -330,31 +343,61 @@ begin
       PSScript.Free;
     end;
     PSScript.Free;
+    Session.Free;
   finally
   end;
+end;
+
+function GetSessionID(Request: TWebRequest; Response: TWebResponse): string;
+var
+  I: Integer;
+  Cookie: TCookie;
+  bFound: boolean;
+  UniqueID : TGUID;
+begin
+  bFound := true;
+  for I := 0 to Response.Cookies.Count -1 do
+  begin
+    Cookie := Response.Cookies.Items[I];
+    if Cookie.Name = '_PascalWebSessionID_' then
+    begin
+      bFound := false;
+      Result := Cookie.Value;
+      break;
+    end;
+  end;
+
+  if not bFound then
+  begin
+    CreateGUID(UniqueID);
+    Cookie := Response.Cookies.Add;
+    Cookie.Name := '_PascalWebSessionID_';
+    Cookie.Value := GUIDToString(UniqueID);
+    Result := Cookie.Value;
+  end;
+
 end;
 
 procedure TPascalModule.PascalModuleDefaultHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
-  {Response.Content := 'PathTranslated : '+Request.PathTranslated + '<br>';
-  Response.Content := Response.Content + 'PathInfo : '+Request.PathInfo + '<br>';
-  Response.Content := Response.Content + 'Query : '+Request.Query + '<br>';
-  Response.Content := Response.Content + 'ScriptName : '+Request.ScriptName + '<br>';
-  Response.Content := Response.Content + 'InternalPathInfo : '+Request.InternalPathInfo + '<br>';
-   }
 
   try
-  AppPath := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
-  AppPath := ExtractFilePath(AppPath);
 
+    AppPath := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
+    AppPath := ExtractFilePath(AppPath);
 
-  Compile(Request, Response);
-  Response.SendResponse;
-  Handled := true;
+    Compile(Request, Response);
+    Response.SendResponse;
+    Handled := true;
   except on E: Exception do
     echo (E.Message + '<br/><br/>' + E.StackTrace);
   end;
+end;
+
+procedure TPascalModule.WebModuleCreate(Sender: TObject);
+begin
+  Session := TSession.Create;
 end;
 
 procedure TPascalModule.WebModuleException(Sender: TObject; E: Exception;
@@ -369,6 +412,11 @@ begin
   sList.SaveToFile(ExtractFilePath(GetModuleName(HInstance)) + '\error.log');
   sList.Free;
 
+end;
+
+procedure TPascalModule.WebModuleDestroy(Sender: TObject);
+begin
+  Session.Free;
 end;
 
 end.
