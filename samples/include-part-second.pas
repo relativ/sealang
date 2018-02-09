@@ -1,3 +1,5 @@
+<?pas
+
 for i := 0 to 5 do
 begin
 ?>
@@ -6,3 +8,5 @@ begin
 end;
 
 {$I    'include-part-third.pas'}
+
+?>

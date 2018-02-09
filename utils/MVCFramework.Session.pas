@@ -83,7 +83,7 @@ type
     destructor Destroy; override;
   end;
 
-function SessionList: TObjectDictionary<string, TWebSession>;
+function SessionList: TObjectDictionary<string, TWebSessionMemory>;
 
 implementation
 
@@ -92,11 +92,11 @@ uses
   System.SyncObjs;
 
 var
-  GSessionlist: TObjectDictionary<string, TWebSession>;
+  GSessionlist: TObjectDictionary<string, TWebSessionMemory>;
   GLastSessionListClear: TDateTime;
   CS: TCriticalSection;
 
-function SessionList: TObjectDictionary<string, TWebSession>;
+function SessionList: TObjectDictionary<string, TWebSessionMemory>;
 var
   k: string;
 begin
@@ -105,7 +105,7 @@ begin
     CS.Enter;
     try
       if not Assigned(GSessionlist) then // double check
-        GSessionlist := TObjectDictionary<string, TWebSession>.Create([doOwnsValues]);
+        GSessionlist := TObjectDictionary<string, TWebSessionMemory>.Create([doOwnsValues]);
     finally
       CS.Leave;
     end;

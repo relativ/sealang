@@ -6,7 +6,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   Windows, Messages, Graphics, Controls,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
-  MultipartParser, MVCFramework.Session, Session;
+  MultipartParser, MVCFramework.Session, SessionUnit;
 
 type
   TPascalModule = class(TWebModule)
@@ -14,10 +14,8 @@ type
       var Handled: Boolean);
     procedure PascalModuleDefaultHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure WebModuleCreate(Sender: TObject);
-    procedure WebModuleDestroy(Sender: TObject);
   private
-    Session : TSession;
+    SessionObject : TSession;
     AppPath: string;
     procedure Compile(Request: TWebRequest; Response: TWebResponse);
     procedure MyOnCompile(Sender: TPSScript);
@@ -227,7 +225,8 @@ procedure TPascalModule.MyOnExecute(Sender: TPSScript);
 begin
   Sender.SetVarToInstance('RESPONSE', Response);
   Sender.SetVarToInstance('REQUEST', Request);
-  Sender.SetVarToInstance('SESSION', Session);
+  Sender.SetVarToInstance('SESSION', SessionObject);
+
 end;
 
 procedure TPascalModule.MyOnCompile(Sender: TPSScript);
@@ -250,6 +249,7 @@ begin
 
   SIRegister_HTTPApp(Sender.Comp);
 
+
   Sender.AddRegisteredVariable('RESPONSE', 'TWebResponse');
   Sender.AddRegisteredVariable('REQUEST', 'TWebRequest');
   Sender.AddRegisteredVariable('SESSION', 'TSession');
@@ -270,6 +270,7 @@ begin
 
   RIRegister_HTTPApp(x);
   RIRegister_HTTPApp_Routines(se);
+
 end;
 
 
@@ -280,7 +281,6 @@ var
   sCode, d: AnsiString;
   mainFileName: string;
   i: integer;
-  SessionID: string;
 
 
   procedure Outputtxt(const s: string);
@@ -288,29 +288,10 @@ var
     Response.Content := Response.Content + s;
   end;
 
-  procedure OutputMsgs;
-  var
-    l: Longint;
-    b: Boolean;
-  begin
-    b := False;
-    for l := 0 to PSScript.Comp.MsgCount - 1 do
-    begin
-      Outputtxt(PSScript.Comp.Msg[l].MessageToString);
-      if (not b) and (PSScript.Comp.Msg[l] is TPSPascalCompilerError) then
-      begin
-        b := True;
-      end;
-    end;
-  end;
-
-
 begin
   try
 
-    SessionID := GetSessionID(Request, Response);
-
-    Session.SessionID := SessionID;
+    
     mainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
 
     sCode := StringLoadFile(mainFileName);
@@ -340,10 +321,9 @@ begin
       Outputtxt('Failed when compiling <br/>');
       for i:= 0 to PSScript.CompilerMessageCount - 1 do
         Outputtxt(PSScript.CompilerMessages[i].MessageToString + #13);
-      PSScript.Free;
     end;
     PSScript.Free;
-    Session.Free;
+
   finally
   end;
 end;
@@ -380,24 +360,27 @@ end;
 
 procedure TPascalModule.PascalModuleDefaultHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  SessionID: string;
 begin
 
   try
+
+    SessionID := GetSessionID(Request, Response);
+
+    SessionObject := TSession.Create;
+    SessionObject.SetSessionId(SessionID);
 
     AppPath := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
     AppPath := ExtractFilePath(AppPath);
 
     Compile(Request, Response);
+    SessionObject.Free;
     Response.SendResponse;
     Handled := true;
   except on E: Exception do
     echo (E.Message + '<br/><br/>' + E.StackTrace);
   end;
-end;
-
-procedure TPascalModule.WebModuleCreate(Sender: TObject);
-begin
-  Session := TSession.Create;
 end;
 
 procedure TPascalModule.WebModuleException(Sender: TObject; E: Exception;
@@ -412,11 +395,6 @@ begin
   sList.SaveToFile(ExtractFilePath(GetModuleName(HInstance)) + '\error.log');
   sList.Free;
 
-end;
-
-procedure TPascalModule.WebModuleDestroy(Sender: TObject);
-begin
-  Session.Free;
 end;
 
 end.

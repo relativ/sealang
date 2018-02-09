@@ -15,7 +15,7 @@ uses
   ,uPSRuntime
   ,uPSCompiler
   ,MultipartParser
-  ,Session
+  ,SessionUnit
   ;
 
 type
@@ -145,11 +145,11 @@ procedure SIRegister_TSession(CL: TPSPascalCompiler);
 begin
   with CL.AddClassN(CL.FindClass('TObject'),'TSession') do
   begin
-    RegisterMethod('Constructor Create');
-    RegisterProperty('SessionID', 'AnsiString', iptrw);
-    RegisterMethod('procedure SetValue(name, value: AnsiString);');
-    RegisterMethod('procedure Delete(name: AnsiString);');
-    RegisterMethod('function GetValue(name: AnsiString): AnsiString;');
+
+    RegisterMethod('procedure SetValue(name:string; value: string)');
+    RegisterMethod('procedure Delete(name: string)');
+    RegisterMethod('function GetValue(name: string): string;');
+    RegisterProperty('SessionID', 'string', iptr);
   end;
 end;
 
@@ -300,6 +300,7 @@ begin
   SIRegister_TAbstractWebRequestFile(CL);
   SIRegister_TCookie(CL);
   SIRegister_TCookieCollection(CL);
+  CL.AddClassN(CL.FindClass('TOBJECT'),'TSession');
   SIRegister_TSession(CL);
   SIRegister_TWebResponse(CL);
  CL.AddDelphiFunction('Function DosPathToUnixPath( const Path : string) : string');
@@ -546,10 +547,6 @@ begin Self.Secure := T; end;
 (*----------------------------------------------------------------------------*)
 procedure TCookieSecure_R(Self: TCookie; var T: Boolean);
 begin T := Self.Secure; end;
-
-(*----------------------------------------------------------------------------*)
-procedure TSessionSessionID_W(Self: TSession; const T: AnsiString);
-begin Self.SessionID := T; end;
 
 (*----------------------------------------------------------------------------*)
 procedure TSessionSessionID_R(Self: TSession; var T: AnsiString);
@@ -874,12 +871,10 @@ begin
   with CL.Add(TSession) do
   begin
     RegisterConstructor(@TSession.Create, 'Create');
-    RegisterPropertyHelper(@TSessionSessionID_R,@TSessionSessionID_W,'SessionID');
+    RegisterPropertyHelper(@TSessionSessionID_R,nil,'SessionID');
 
   end;
 end;
-
-
 
 (*----------------------------------------------------------------------------*)
 procedure RIRegister_TAbstractWebRequestFile(CL: TPSRuntimeClassImporter);
@@ -995,7 +990,6 @@ begin
   RIRegister_TAbstractWebRequestFile(CL);
   RIRegister_TCookie(CL);
   RIRegister_TCookieCollection(CL);
-  with CL.Add(TSession) do
   RIRegister_TSession(CL);
   RIRegister_TWebResponse(CL);
 end;
