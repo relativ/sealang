@@ -6,7 +6,8 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   Windows, Messages, Graphics, Controls,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
-  MultipartParser, MVCFramework.Session, SessionUnit;
+  MultipartParser, MVCFramework.Session, SessionUnit, uPSComponent_DB,
+  System.Generics.Collections;
 
 type
   TPascalModule = class(TWebModule)
@@ -18,6 +19,7 @@ type
     procedure WebModuleDestroy(Sender: TObject);
   private
     SessionObject : TSession;
+    RunTimeVariables: TDictionary<string, string>;
     AppPath: string;
     procedure Compile(Request: TWebRequest; Response: TWebResponse);
     procedure MyOnCompile(Sender: TPSScript);
@@ -27,7 +29,7 @@ type
     procedure echo(s: string);
     procedure Write(s: string);
     procedure Writeln(s: string);
-    function ParsePascalCodes(code: string): string;
+    function ParsePascalCodes(code: string; RunTimeVariables: TDictionary<string, string>; checkVariables: boolean = true): string;
   public
 
   end;
@@ -84,6 +86,26 @@ begin
   end;
 end;
 
+function ParseCheckVariables(line: string; RunTimeVariables: TDictionary<string, string>): string;
+var
+  strLine, varStr, name, types: string;
+begin
+  strLine := line;
+  while (Pos('var ', LowerCase(strLine)) > 0) do
+  begin
+    varStr := copy(strLine, Pos('var ', LowerCase(strLine)), Pos(';', strLine)+ 1);
+    Delete(varStr, 1,Pos('var ', LowerCase(varStr)) + 3);
+    name := copy(varStr, 0, Pos(':', varStr) -1);
+    name := trim(name);
+    Delete(varStr, 1, Pos(':', varStr));
+    types := copy(varStr, 0, Pos(';', varStr) - 1);
+    types := trim(types);
+    RunTimeVariables.Add(name, types);
+    Delete(strLine, Pos('var ', LowerCase(strLine)), Pos(';', strLine) + 1);
+  end;
+  Result := strLine;
+end;
+
 function ParseScriptLine(lineCode: string): string;
 var
   sLineCode,strLine, tmpStr: string;
@@ -123,12 +145,12 @@ begin
 
 end;
 
-function TPascalModule.ParsePascalCodes(code: string): string;
+function TPascalModule.ParsePascalCodes(code: string; RunTimeVariables: TDictionary<string, string>; checkVariables: boolean = true): string;
   var
-    sList, tmpList: TStringList;
+    sList, tmpList, sLineCode: TStringList;
     I: integer;
     bStartCode, bEndCode, bOnylCode: boolean;
-    sLineCode,strLine, tmpStr, strInclude: string;
+    strLine, tmpStr, strInclude: string;
     A: Integer;
     sIncludeList: TStringList;
   label StartParsing;
@@ -137,6 +159,7 @@ function TPascalModule.ParsePascalCodes(code: string): string;
     sList.Text := code;
 
     sIncludeList:= TStringList.Create;
+    sLineCode:= TStringList.Create;
 
     bStartCode := false;
     bEndCode   := true;
@@ -161,16 +184,23 @@ function TPascalModule.ParsePascalCodes(code: string): string;
         bStartCode := false;
       end;
 
+      if (checkVariables) then
+      begin
+        strLine := ParseCheckVariables(strLine, RunTimeVariables);
+      end;
+
+
+
       if bStartCode then
       begin
-          sLineCode := sLineCode + ParseScriptLine(strLine);
+          sLineCode.Add(ParseScriptLine(strLine));
       end else if bEndCode then
       begin
         strLine := StringReplace(strLine, '?>', '', [rfReplaceAll]);
         if Trim(strLine) <> '' then
         begin
           tmpStr := StringReplace(strLine, chr(39), chr(39) + chr(39), [rfReplaceAll]);
-          sLineCode := sLineCode + 'echo(' + chr(39) + tmpStr + chr(39) + '); ' + #13#10;
+          sLineCode.Add('echo(' + chr(39) + tmpStr + chr(39) + '); ');
         end;
       end else if bOnylCode then
       begin
@@ -185,7 +215,7 @@ function TPascalModule.ParsePascalCodes(code: string): string;
             begin
               sIncludeList.Add(strInclude);
               strInclude := StringLoadFile( AppPath + strInclude);
-              strInclude:= ParsePascalCodes(strInclude);
+              strInclude:= ParsePascalCodes(strInclude,RunTimeVariables, false);
 
               tmpStr := Copy(strLine, Pos('{$I', strLine), Pos('}', strLine) + 1 );
 
@@ -196,7 +226,7 @@ function TPascalModule.ParsePascalCodes(code: string): string;
 
 
           end else
-            sLineCode := sLineCode + strLine + #13#10;
+            sLineCode.Add(strLine);
       end;
 
       Inc(I);
@@ -204,7 +234,7 @@ function TPascalModule.ParsePascalCodes(code: string): string;
     end;
 
 
-    Result := sLineCode;
+    Result := sLineCode.Text;
   end;
 
 
@@ -233,6 +263,10 @@ begin
 end;
 
 procedure TPascalModule.MyOnCompile(Sender: TPSScript);
+var
+  I: Integer;
+  RTVariableKeys: TArray<string>;
+  VName, VType :string;
 begin
   Sender.AddMethod(self, @TPascalModule.Writeln, 'procedure Writeln(s: string)');
   Sender.AddMethod(self, @TPascalModule.Write, 'procedure Write(s: string)');
@@ -257,6 +291,12 @@ begin
   Sender.AddRegisteredVariable('REQUEST', 'TWebRequest');
   Sender.AddRegisteredVariable('SESSION', 'TSession');
   Sender.AddRegisteredVariable('COOKIES', 'TStrings');
+  RTVariableKeys := RunTimeVariables.Keys.ToArray();
+  for VName in RTVariableKeys do
+  begin
+    VType := RunTimeVariables[VName];
+    Sender.AddRegisteredVariable(VName, VType);
+  end;
 
 end;
 
@@ -285,6 +325,8 @@ var
   sCode, d: AnsiString;
   mainFileName: string;
   i: integer;
+  PSImport_DB: TPSImport_DB;
+  Plugin: TPSPluginItem;
 
 
   procedure Outputtxt(const s: string);
@@ -298,10 +340,11 @@ begin
     
     mainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
 
-    sCode := StringLoadFile(mainFileName);
-    sCode:= ParsePascalCodes(sCode);
-
     PSScript:= TPSScript.Create(nil);
+    RunTimeVariables:= TDictionary<string, string>.Create();
+    sCode := StringLoadFile(mainFileName);
+    sCode:= ParsePascalCodes(sCode, RunTimeVariables);
+
     PSScript.Script.Text := sCode;
 
     //PSScript.SetPointerToData('Request', @Request, PSScript.FindNamedType('TWebRequest'));
@@ -327,7 +370,7 @@ begin
         Outputtxt(PSScript.CompilerMessages[i].MessageToString + #13);
     end;
     PSScript.Free;
-
+    RunTimeVariables.Free;
   finally
   end;
 end;
@@ -368,6 +411,7 @@ begin
 
     AppPath := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
     AppPath := ExtractFilePath(AppPath);
+
 
 
     Compile(Request, Response);

@@ -10,6 +10,6 @@ object PascalModule: TPascalModule
       OnAction = PascalModuleDefaultHandlerAction
     end>
   OnException = WebModuleException
-  Height = 230
+  Height = 237
   Width = 415
 end
