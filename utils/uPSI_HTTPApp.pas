@@ -146,9 +146,10 @@ begin
   with CL.AddClassN(CL.FindClass('TObject'),'TSession') do
   begin
 
-    RegisterMethod('procedure SetValue(name:string; value: string)');
-    RegisterMethod('procedure Delete(name: string)');
+    RegisterMethod('procedure SetValue(name:string; value: string);');
+    RegisterMethod('procedure Delete(name: string);');
     RegisterMethod('function GetValue(name: string): string;');
+    RegisterMethod('procedure SetSessionId(sessionId: string);');
     RegisterProperty('SessionID', 'string', iptr);
   end;
 end;
@@ -872,7 +873,10 @@ begin
   begin
     RegisterConstructor(@TSession.Create, 'Create');
     RegisterPropertyHelper(@TSessionSessionID_R,nil,'SessionID');
-
+    RegisterMethod(@TSession.GetValue, 'GetValue');
+    RegisterMethod(@TSession.SetValue, 'SetValue');
+    RegisterMethod(@TSession.Delete, 'Delete');
+    RegisterMethod(@TSession.SetSessionId, 'SetSessionId');
   end;
 end;
 

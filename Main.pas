@@ -14,6 +14,8 @@ type
       var Handled: Boolean);
     procedure PascalModuleDefaultHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModuleCreate(Sender: TObject);
+    procedure WebModuleDestroy(Sender: TObject);
   private
     SessionObject : TSession;
     AppPath: string;
@@ -226,6 +228,7 @@ begin
   Sender.SetVarToInstance('RESPONSE', Response);
   Sender.SetVarToInstance('REQUEST', Request);
   Sender.SetVarToInstance('SESSION', SessionObject);
+  Sender.SetVarToInstance('COOKIES', Request.CookieFields);
 
 end;
 
@@ -253,6 +256,7 @@ begin
   Sender.AddRegisteredVariable('RESPONSE', 'TWebResponse');
   Sender.AddRegisteredVariable('REQUEST', 'TWebRequest');
   Sender.AddRegisteredVariable('SESSION', 'TSession');
+  Sender.AddRegisteredVariable('COOKIES', 'TStrings');
 
 end;
 
@@ -330,30 +334,21 @@ end;
 
 function GetSessionID(Request: TWebRequest; Response: TWebResponse): string;
 var
-  I: Integer;
   Cookie: TCookie;
-  bFound: boolean;
   UniqueID : TGUID;
+  PasSessionID: string;
 begin
-  bFound := true;
-  for I := 0 to Response.Cookies.Count -1 do
-  begin
-    Cookie := Response.Cookies.Items[I];
-    if Cookie.Name = '_PascalWebSessionID_' then
-    begin
-      bFound := false;
-      Result := Cookie.Value;
-      break;
-    end;
-  end;
+  PasSessionID := Request.CookieFields.Values['_PascalWebSessionID_'];
 
-  if not bFound then
+  if PasSessionID = '' then
   begin
     CreateGUID(UniqueID);
     Cookie := Response.Cookies.Add;
     Cookie.Name := '_PascalWebSessionID_';
     Cookie.Value := GUIDToString(UniqueID);
     Result := Cookie.Value;
+  end else begin
+    Result := PasSessionID;
   end;
 
 end;
@@ -368,19 +363,30 @@ begin
 
     SessionID := GetSessionID(Request, Response);
 
-    SessionObject := TSession.Create;
+
     SessionObject.SetSessionId(SessionID);
 
     AppPath := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
     AppPath := ExtractFilePath(AppPath);
 
+
     Compile(Request, Response);
-    SessionObject.Free;
+
     Response.SendResponse;
     Handled := true;
   except on E: Exception do
     echo (E.Message + '<br/><br/>' + E.StackTrace);
   end;
+end;
+
+procedure TPascalModule.WebModuleCreate(Sender: TObject);
+begin
+  SessionObject := TSession.Create;
+end;
+
+procedure TPascalModule.WebModuleDestroy(Sender: TObject);
+begin
+  SessionObject.Free;
 end;
 
 procedure TPascalModule.WebModuleException(Sender: TObject; E: Exception;

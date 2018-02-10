@@ -1,5 +1,7 @@
 object PascalModule: TPascalModule
   OldCreateOrder = True
+  OnCreate = WebModuleCreate
+  OnDestroy = WebModuleDestroy
   Actions = <
     item
       Default = True

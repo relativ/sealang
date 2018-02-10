@@ -54,7 +54,7 @@ uses
   ExternalFunctions in 'utils\ExternalFunctions.pas',
   MultipartParser in 'utils\MultipartParser.pas',
   MVCFramework.Session in 'utils\MVCFramework.Session.pas',
-  Session in 'library\Session.pas';
+  SessionUnit in 'library\SessionUnit.pas';
 
 {$R *.res}
 
