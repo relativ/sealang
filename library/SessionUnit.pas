@@ -48,8 +48,7 @@ var
 begin
   if SessionID = '' then
     raise Exception.Create('Session id needed!');
-  v := SessionList.Items[SessionID];
-  if v <> nil then
+  if SessionList.TryGetValue(SessionID, v) then
   begin
     Result := v.Items[name];
   end else Result := '';
