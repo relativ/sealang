@@ -150,7 +150,7 @@ begin
     RegisterMethod('procedure Delete(name: string);');
     RegisterMethod('function GetValue(name: string): string;');
     RegisterMethod('procedure SetSessionId(sessionId: string);');
-    RegisterProperty('SessionID', 'string', iptr);
+    RegisterProperty('SessionID', 'AnsiString', iptr);
   end;
 end;
 

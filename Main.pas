@@ -7,7 +7,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
   MultipartParser, MVCFramework.Session, SessionUnit, uPSComponent_DB,
-  System.Generics.Collections;
+  System.Generics.Collections, uPSC_DB, uPSR_DB, uPSI_SqlExpr;
 
 type
   TPascalModule = class(TWebModule)
@@ -286,6 +286,10 @@ begin
 
   SIRegister_HTTPApp(Sender.Comp);
 
+  SIRegister_DB(Sender.Comp);
+
+  SIRegister_SqlExpr(Sender.Comp);
+
 
   Sender.AddRegisteredVariable('RESPONSE', 'TWebResponse');
   Sender.AddRegisteredVariable('REQUEST', 'TWebRequest');
@@ -315,6 +319,11 @@ begin
   RIRegister_HTTPApp(x);
   RIRegister_HTTPApp_Routines(se);
 
+  RIRegister_DB(x);
+
+  RIRegister_SqlExpr(x);
+  RIRegister_SqlExpr_Routines(se);
+
 end;
 
 
@@ -337,40 +346,39 @@ var
 begin
   try
 
-    
-    mainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
+      mainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
 
-    PSScript:= TPSScript.Create(nil);
-    RunTimeVariables:= TDictionary<string, string>.Create();
-    sCode := StringLoadFile(mainFileName);
-    sCode:= ParsePascalCodes(sCode, RunTimeVariables);
+      PSScript:= TPSScript.Create(nil);
+      RunTimeVariables:= TDictionary<string, string>.Create();
+      sCode := StringLoadFile(mainFileName);
+      sCode:= ParsePascalCodes(sCode, RunTimeVariables);
 
-    PSScript.Script.Text := sCode;
+      PSScript.Script.Text := sCode;
 
-    //PSScript.SetPointerToData('Request', @Request, PSScript.FindNamedType('TWebRequest'));
-    //PSScript.SetPointerToData('Response', @Response, PSScript.FindNamedType('TWebResponse'));
-    //PSScript.SetVarToInstance('Request', Request);
-    //PSScript.SetVarToInstance('Response', Response);
-    PSScript.OnCompile := MyOnCompile;
-    PSScript.OnExecImport := OnExecImport;
-    PSScript.OnExecute := MyOnExecute;
-    PSScript.Comp.OnExternalProc := DllExternalProc;
-    PSScript.Comp.AllowNoEnd := true;
-    PSScript.Comp.AllowNoBegin := true;
-    PSScript.Comp.AllowUnit := true;
-    if PSScript.Compile() then
-    begin
-      PSScript.Execute();
-    end
-    else
-    begin
+      //PSScript.SetPointerToData('Request', @Request, PSScript.FindNamedType('TWebRequest'));
+      //PSScript.SetPointerToData('Response', @Response, PSScript.FindNamedType('TWebResponse'));
+      //PSScript.SetVarToInstance('Request', Request);
+      //PSScript.SetVarToInstance('Response', Response);
+      PSScript.OnCompile := MyOnCompile;
+      PSScript.OnExecImport := OnExecImport;
+      PSScript.OnExecute := MyOnExecute;
+      PSScript.Comp.OnExternalProc := DllExternalProc;
+      PSScript.Comp.AllowNoEnd := true;
+      PSScript.Comp.AllowNoBegin := true;
+      PSScript.Comp.AllowUnit := true;
+      if PSScript.Compile() then
+      begin
+        PSScript.Execute();
+      end
+      else
+      begin
 
-      Outputtxt('Failed when compiling <br/>');
-      for i:= 0 to PSScript.CompilerMessageCount - 1 do
-        Outputtxt(PSScript.CompilerMessages[i].MessageToString + #13);
-    end;
-    PSScript.Free;
-    RunTimeVariables.Free;
+        Outputtxt('Failed when compiling <br/>');
+        for i:= 0 to PSScript.CompilerMessageCount - 1 do
+          Outputtxt(PSScript.CompilerMessages[i].MessageToString + #13);
+      end;
+      PSScript.Free;
+      RunTimeVariables.Free;
   finally
   end;
 end;

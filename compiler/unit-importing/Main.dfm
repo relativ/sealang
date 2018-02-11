@@ -1,13 +1,13 @@
 object frmMain: TfrmMain
   Left = 269
   Top = 246
-  Width = 696
-  Height = 551
   Caption = 'Import Files'
+  ClientHeight = 492
+  ClientWidth = 680
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -14
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Menu = mnuMain
@@ -15,31 +15,45 @@ object frmMain: TfrmMain
   Position = poDefault
   OnClose = FormClose
   OnCreate = FormCreate
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 382
-    Width = 688
-    Height = 4
+    Top = 405
+    Width = 680
+    Height = 3
     Cursor = crVSplit
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Align = alBottom
+    ExplicitTop = 306
+    ExplicitWidth = 550
   end
   object lboMessages: TListBox
     Left = 0
-    Top = 386
-    Width = 688
-    Height = 81
+    Top = 408
+    Width = 680
+    Height = 65
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Align = alBottom
-    ItemHeight = 16
+    ItemHeight = 13
     TabOrder = 0
     OnDblClick = lboMessagesDblClick
   end
   object TabControl1: TTabControl
     Left = 0
-    Top = 29
-    Width = 688
-    Height = 353
+    Top = 23
+    Width = 680
+    Height = 382
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Align = alClient
     Style = tsFlatButtons
     TabOrder = 1
@@ -50,27 +64,43 @@ object frmMain: TfrmMain
     OnChanging = TabControl1Changing
     object Editor: TSynEdit
       Left = 4
-      Top = 30
-      Width = 680
-      Height = 319
+      Top = 27
+      Width = 672
+      Height = 351
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -17
+      Font.Height = -14
       Font.Name = 'Courier New'
       Font.Style = []
       TabOrder = 0
       OnClick = EditorClick
       OnKeyDown = EditorKeyDown
       OnKeyUp = EditorKeyUp
+      CodeFolding.GutterShapeSize = 11
+      CodeFolding.CollapsedLineColor = clGrayText
+      CodeFolding.FolderBarLinesColor = clGrayText
+      CodeFolding.IndentGuidesColor = clGray
+      CodeFolding.IndentGuides = True
+      CodeFolding.ShowCollapsedLine = False
+      CodeFolding.ShowHintMark = True
+      UseCodeFolding = False
+      BookMarkOptions.LeftMargin = 0
+      BookMarkOptions.XOffset = 0
       Gutter.DigitCount = 2
       Gutter.Font.Charset = DEFAULT_CHARSET
       Gutter.Font.Color = clWindowText
-      Gutter.Font.Height = -11
+      Gutter.Font.Height = -9
       Gutter.Font.Name = 'Terminal'
       Gutter.Font.Style = []
+      Gutter.LeftOffset = 13
       Gutter.ShowLineNumbers = True
       Gutter.UseFontStyle = False
+      Gutter.Width = 24
       Highlighter = pashighlighter
       Lines.Strings = (
         '//drag '#39'n'#39' drop a file here')
@@ -79,6 +109,7 @@ object frmMain: TfrmMain
       OnChange = EditorChange
       OnDropFiles = EditorDropFiles
       OnScroll = EditorScroll
+      FontSmoothing = fsmNone
       RemovedKeystrokes = <
         item
           Command = ecContextHelp
@@ -94,19 +125,26 @@ object frmMain: TfrmMain
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 688
-    Height = 29
+    Width = 680
+    Height = 23
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     ButtonHeight = 24
     ButtonWidth = 25
     Caption = 'ToolBar1'
     EdgeBorders = [ebBottom]
-    Flat = True
     Images = ImageList1
     TabOrder = 2
     object ToolButton1: TToolButton
       Tag = 100
       Left = 0
       Top = 0
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = '&Open'
       ImageIndex = 0
       ParentShowHint = False
@@ -117,6 +155,10 @@ object frmMain: TfrmMain
       Tag = 101
       Left = 25
       Top = 0
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = '&Save'
       ImageIndex = 1
       ParentShowHint = False
@@ -127,6 +169,10 @@ object frmMain: TfrmMain
       Tag = 104
       Left = 50
       Top = 0
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'Settings ...'
       ImageIndex = 3
       ParentShowHint = False
@@ -136,15 +182,23 @@ object frmMain: TfrmMain
     object ToolButton4: TToolButton
       Left = 75
       Top = 0
-      Width = 8
+      Width = 6
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'ToolButton4'
       ImageIndex = 3
       Style = tbsSeparator
     end
     object ToolButton7: TToolButton
       Tag = 104
-      Left = 83
+      Left = 81
       Top = 0
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = '&Convert'
       ImageIndex = 4
       ParentShowHint = False
@@ -152,31 +206,47 @@ object frmMain: TfrmMain
       OnClick = AnyCommand
     end
     object ToolButton8: TToolButton
-      Left = 108
+      Left = 106
       Top = 0
-      Width = 8
+      Width = 7
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'ToolButton8'
       ImageIndex = 5
       Style = tbsSeparator
     end
     object tlbFind: TToolButton
-      Left = 116
+      Left = 113
       Top = 0
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = '&Find...'
       ImageIndex = 5
       MenuItem = mnuFind
     end
     object tlbFindNext: TToolButton
-      Left = 141
+      Left = 138
       Top = 0
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'Find &Next'
       ImageIndex = 6
       MenuItem = mnuFindNext
     end
     object ToolButton6: TToolButton
-      Left = 166
+      Left = 163
       Top = 0
-      Width = 8
+      Width = 6
+      Margins.Left = 2
+      Margins.Top = 2
+      Margins.Right = 2
+      Margins.Bottom = 2
       Caption = 'ToolButton6'
       ImageIndex = 4
       Style = tbsSeparator
@@ -184,9 +254,13 @@ object frmMain: TfrmMain
   end
   object stbMain: TStatusBar
     Left = 0
-    Top = 467
-    Width = 688
+    Top = 473
+    Width = 680
     Height = 19
+    Margins.Left = 2
+    Margins.Top = 2
+    Margins.Right = 2
+    Margins.Bottom = 2
     Panels = <
       item
         Text = 'Current Row : 99999999 Col : 99999'
@@ -201,6 +275,9 @@ object frmMain: TfrmMain
     Top = 65532
   end
   object pashighlighter: TSynPasSyn
+    Options.AutoDetectEnabled = False
+    Options.AutoDetectLineLimit = 0
+    Options.Visible = False
     Left = 480
   end
   object mnuMain: TMainMenu
@@ -289,7 +366,7 @@ object frmMain: TfrmMain
     Left = 380
     Top = 65531
     Bitmap = {
-      494C010108000900040012001200FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010108000900080012001200FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000048000000360000000100200000000000C03C
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -141,6 +141,7 @@
         <DCCReference Include="utils\MultipartParser.pas"/>
         <DCCReference Include="utils\MVCFramework.Session.pas"/>
         <DCCReference Include="library\SessionUnit.pas"/>
+        <DCCReference Include="library\uPSI_SqlExpr.pas"/>
         <None Include="compiler\Source\PascalScript_Core_D25.dpk"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
