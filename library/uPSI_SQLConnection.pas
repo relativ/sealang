@@ -48,6 +48,21 @@ uses
   ,DBAccess
   ,Uni
   ,MemDS
+  ,MongoDBUniProvider
+  ,SQLiteUniProvider
+  ,SQLServerUniProvider
+  ,PostgreSQLUniProvider
+  ,OracleUniProvider
+  ,NexusDBUniProvider
+  ,MySQLUniProvider
+  ,InterBaseUniProvider
+  ,DBFUniProvider
+  ,DB2UniProvider
+  ,ASEUniProvider
+  ,AdvantageUniProvider
+  ,UniProvider
+  ,ODBCUniProvider
+  ,AccessUniProvider
   ,SQLConnection
   ;
  
@@ -71,17 +86,21 @@ begin
     RegisterMethod('Procedure First');
     RegisterMethod('Procedure Last');
     RegisterMethod('Procedure Previous');
-    RegisterMethod('Function FieldByName( FieldName : AnsiString) : TField');
     RegisterMethod('Procedure Append');
     RegisterMethod('Procedure Edit');
     RegisterMethod('Procedure Post');
     RegisterMethod('Function Eof : boolean');
+    RegisterMethod('Function FieldByNameAsBoolean( FieldName : string) : Boolean');
+    RegisterMethod('Function FieldByNameAsDateTime( FieldName : string) : TDateTime');
+    RegisterMethod('Function FieldByNameAsFloat( FieldName : string) : Double');
+    RegisterMethod('Function FieldByNameAsInteger( FieldName : string) : Longint');
+    RegisterMethod('Function FieldByNameAsString( FieldName : string) : string');
     RegisterProperty('Active', 'boolean', iptrw);
-    RegisterProperty('Connection', 'TSQLConnection', iptrw);
     RegisterProperty('SQL', 'TStrings', iptr);
     RegisterProperty('SQLDelete', 'TStrings', iptr);
     RegisterProperty('SQLInsert', 'TStrings', iptr);
     RegisterProperty('SQLUpdate', 'TStrings', iptr);
+    RegisterProperty('Connection', 'TSQLConnection', iptrw);
   end;
 end;
 
@@ -94,7 +113,6 @@ begin
     RegisterMethod('Constructor Create');
     RegisterMethod('Procedure Open( )');
     RegisterMethod('Procedure Close( )');
-    RegisterMethod('Procedure SetConnection( Query : TUniQuery)');
     RegisterProperty('ProviderName', 'AnsiString', iptrw);
     RegisterProperty('UserName', 'AnsiString', iptrw);
     RegisterProperty('Password', 'AnsiString', iptrw);
@@ -112,6 +130,14 @@ begin
 end;
 
 (* === run-time registration functions === *)
+(*----------------------------------------------------------------------------*)
+procedure TSQLQueryConnection_W(Self: TSQLQuery; const T: TSQLConnection);
+begin Self.Connection := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSQLQueryConnection_R(Self: TSQLQuery; var T: TSQLConnection);
+begin T := Self.Connection; end;
+
 (*----------------------------------------------------------------------------*)
 procedure TSQLQuerySQLUpdate_R(Self: TSQLQuery; var T: TStrings);
 begin T := Self.SQLUpdate; end;
@@ -185,14 +211,6 @@ procedure TSQLConnectionProviderName_R(Self: TSQLConnection; var T: AnsiString);
 begin T := Self.ProviderName; end;
 
 (*----------------------------------------------------------------------------*)
-procedure TSQLQueryConnection_W(Self: TSQLQuery; const T: TSQLConnection);
-begin Self.Connection := T; end;
-
-(*----------------------------------------------------------------------------*)
-procedure TSQLQueryConnection_R(Self: TSQLQuery; var T: TSQLConnection);
-begin T := Self.Connection; end;
-
-(*----------------------------------------------------------------------------*)
 procedure RIRegister_TSQLQuery(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TSQLQuery) do
@@ -204,17 +222,21 @@ begin
     RegisterMethod(@TSQLQuery.First, 'First');
     RegisterMethod(@TSQLQuery.Last, 'Last');
     RegisterMethod(@TSQLQuery.Previous, 'Previous');
-    RegisterMethod(@TSQLQuery.FieldByName, 'FieldByName');
     RegisterMethod(@TSQLQuery.Append, 'Append');
     RegisterMethod(@TSQLQuery.Edit, 'Edit');
     RegisterMethod(@TSQLQuery.Post, 'Post');
     RegisterMethod(@TSQLQuery.Eof, 'Eof');
+    RegisterMethod(@TSQLQuery.FieldByNameAsBoolean, 'FieldByNameAsBoolean');
+    RegisterMethod(@TSQLQuery.FieldByNameAsDateTime, 'FieldByNameAsDateTime');
+    RegisterMethod(@TSQLQuery.FieldByNameAsFloat, 'FieldByNameAsFloat');
+    RegisterMethod(@TSQLQuery.FieldByNameAsInteger, 'FieldByNameAsInteger');
+    RegisterMethod(@TSQLQuery.FieldByNameAsString, 'FieldByNameAsString');
     RegisterPropertyHelper(@TSQLQueryActive_R,@TSQLQueryActive_W,'Active');
-    RegisterPropertyHelper(@TSQLQueryConnection_R,@TSQLQueryConnection_W,'Connection');
     RegisterPropertyHelper(@TSQLQuerySQL_R,nil,'SQL');
     RegisterPropertyHelper(@TSQLQuerySQLDelete_R,nil,'SQLDelete');
     RegisterPropertyHelper(@TSQLQuerySQLInsert_R,nil,'SQLInsert');
     RegisterPropertyHelper(@TSQLQuerySQLUpdate_R,nil,'SQLUpdate');
+    RegisterPropertyHelper(@TSQLQueryConnection_R,@TSQLQueryConnection_W,'Connection');
   end;
 end;
 

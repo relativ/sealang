@@ -12,7 +12,12 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   Data.DBXMySQL, Data.DB, Data.SqlExpr, uPSComponent_Default, uPSC_std, uPSC_classes,
   uPSC_graphics, uPSC_controls, uPSC_forms, uPSC_stdctrls, uPSR_std,
   uPSR_classes, uPSR_controls, uPSR_forms, uPSR_dll, DBAccess, Uni, MemDS,
-  uPSI_SQLConnection;
+  uPSI_SQLConnection, UniProvider, ODBCUniProvider, AdvantageUniProvider,
+  MongoDBUniProvider, SQLiteUniProvider, SQLServerUniProvider,
+  PostgreSQLUniProvider, OracleUniProvider, NexusDBUniProvider,
+  MySQLUniProvider, InterBaseUniProvider, DBFUniProvider, DB2UniProvider,
+  ASEUniProvider, AccessUniProvider;
+
 
 type
   TForm1 = class(TForm)
@@ -41,11 +46,37 @@ implementation
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
-  a: TDataSetErrorEvent;
+  PSScript: TPSScript;
+  sCode, d: AnsiString;
+  mainFileName: string;
+  i: integer;
+
+
+  procedure Outputtxt(const s: string);
+  begin
+    Memo1.Lines.Add(s);
+  end;
+
 begin
-  PSScript1.Script.Text := Memo1.Lines.Text;
-  PSScript1.Compile();
-  PSScript1.Execute();
+  try
+
+      PSScript1.Script.Text := Memo1.Lines.Text;
+      PSScript1.Comp.AllowNoEnd := true;
+      PSScript1.Comp.AllowNoBegin := true;
+      PSScript1.Comp.AllowUnit := true;
+      if PSScript1.Compile() then
+      begin
+        PSScript1.Execute();
+      end
+      else
+      begin
+
+        Outputtxt('Failed when compiling <br/>');
+        for i:= 0 to PSScript1.CompilerMessageCount - 1 do
+          Outputtxt(PSScript1.CompilerMessages[i].MessageToString + #13);
+      end;
+  finally
+  end;
 end;
 
 procedure TForm1.PSScript1Compile(Sender: TPSScript);

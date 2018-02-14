@@ -22,8 +22,6 @@ object Form1: TForm1
       'Program IFSTest;'
       'var'
       #9'SQLConnection: TSQLConnection;'
-      #9'SQLQuery: TSQLQuery;'
-      #9'obj: TObject;'
       'Begin'
       #9'SQLConnection:= TSQLConnection.Create();'
       
@@ -35,28 +33,7 @@ object Form1: TForm1
       #9'SQLConnection.Server := '#39'localhost'#39';'
       #9'SQLConnection.Database := '#39'mysql'#39';'
       #9'SQLConnection.Open();'
-      #9
-      #9'SQLQuery:= TSQLQuery.Create();'
-      #9'SQLQuery.Connection := SQLConnection;'
-      #9'//SQLQuery.SQLConnection :=SQLConnection; '
-      #9'SQLQuery.SQL.Text := '#39'select * from user'#39';'
-      #9'SQLQuery.Open;'
-      #9'while not SQLQuery.Eof do'
-      #9'begin'
-      
-        '                               Memo1.lines.text := SQLQuery.Fiel' +
-        'dByName('#39'User'#39').AsString'
-      ''
-      #9#9'SQLQuery.Next;'
-      #9'end;'
-      #9
-      #9'SQLQuery.Close();'
-      #9'SQLQuery.Free();'
-      #9
-      #9'SQLConnection.Close();'
-      #9'SQLConnection.free();'
-      #9
-      'End.')
+      'end.')
     ScrollBars = ssBoth
     TabOrder = 0
   end

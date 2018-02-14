@@ -2,7 +2,12 @@ unit SQLConnection;
 
 interface
 
-uses SysUtils ,Classes, DB,  DBAccess, Uni, MemDS;
+uses SysUtils ,Classes, DB,  DBAccess, Uni, MemDS,
+  MongoDBUniProvider, SQLiteUniProvider, SQLServerUniProvider,
+  PostgreSQLUniProvider, OracleUniProvider, NexusDBUniProvider,
+  MySQLUniProvider, InterBaseUniProvider, DBFUniProvider, DB2UniProvider,
+  ASEUniProvider, AdvantageUniProvider, UniProvider, ODBCUniProvider,
+  AccessUniProvider;
 
 type
 
@@ -27,7 +32,6 @@ type
       destructor Free;
       procedure Open();
       procedure Close();
-      procedure SetConnection(Query: TUniQuery);
       property ProviderName: string read GetProviderName write SetProviderName;
       property UserName: string read GetUserName write SetUserName;
       property Password: string read GetPassword write SetPassword;
@@ -39,12 +43,15 @@ type
   TSQLQuery = class(TObject)
     private
       UniQuery: TUniQuery;
+      FConnection: TSQLConnection;
       function GetActive: boolean;
       function GetSQL: TStrings;
       function GetSQLDelete: TStrings;
       function GetSQLInsert: TStrings;
       function GetSQLUpdate: TStrings;
       procedure SetActive(const Value: boolean);
+      function GetConnection: TSQLConnection;
+      procedure SetConnection(const Value: TSQLConnection);
     public
       constructor Create;
       destructor Free;
@@ -54,18 +61,25 @@ type
       procedure First;
       procedure Last;
       procedure Previous;
-      function FieldByName(FieldName: string): TField;
       procedure Append;
       procedure Edit;
       procedure Post;
       function Eof: boolean;
+      function FieldByNameAsBoolean(FieldName: string): Boolean;
+      function FieldByNameAsDateTime(FieldName: string): TDateTime;
+      function FieldByNameAsFloat(FieldName: string): Double;
+      function FieldByNameAsInteger(FieldName: string): Longint;
+      function FieldByNameAsString(FieldName: string): String;
       property Active: boolean read GetActive write SetActive;
       property SQL: TStrings read GetSQL;
       property SQLDelete: TStrings read GetSQLDelete;
       property SQLInsert: TStrings read GetSQLInsert;
       property SQLUpdate: TStrings read GetSQLUpdate;
+      property Connection: TSQLConnection read GetConnection write SetConnection;
 
   end;
+
+
 
 implementation
 
@@ -128,10 +142,6 @@ begin
   SQLConnection.Connected := Value;
 end;
 
-procedure TSQLConnection.SetConnection(Query: TUniQuery);
-begin
-  Query.Connection := SQLConnection;
-end;
 
 procedure TSQLConnection.SetDatabase(const Value: string);
 begin
@@ -190,9 +200,29 @@ begin
   Result := UniQuery.Eof;
 end;
 
-function TSQLQuery.FieldByName(FieldName: string): TField;
+function TSQLQuery.FieldByNameAsBoolean(FieldName: string): Boolean;
 begin
-  Result := UniQuery.FieldByName(FieldName);
+  Result := UniQuery.FieldByName(FieldName).AsBoolean;
+end;
+
+function TSQLQuery.FieldByNameAsDateTime(FieldName: string): TDateTime;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsDateTime;
+end;
+
+function TSQLQuery.FieldByNameAsFloat(FieldName: string): Double;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsFloat;
+end;
+
+function TSQLQuery.FieldByNameAsInteger(FieldName: string): Longint;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsInteger;
+end;
+
+function TSQLQuery.FieldByNameAsString(FieldName: string): String;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsString;
 end;
 
 procedure TSQLQuery.First;
@@ -208,6 +238,11 @@ end;
 function TSQLQuery.GetActive: boolean;
 begin
   Result := UniQuery.Active;
+end;
+
+function TSQLQuery.GetConnection: TSQLConnection;
+begin
+  Result := FConnection;
 end;
 
 function TSQLQuery.GetSQL: TStrings;
@@ -259,5 +294,13 @@ procedure TSQLQuery.SetActive(const Value: boolean);
 begin
   UniQuery.Active := Value;
 end;
+
+procedure TSQLQuery.SetConnection(const Value: TSQLConnection);
+begin
+  FConnection := Value;
+  UniQuery.Connection := Value.SQLConnection;
+end;
+
+
 
 end.

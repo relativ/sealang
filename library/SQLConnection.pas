@@ -2,7 +2,12 @@ unit SQLConnection;
 
 interface
 
-uses SysUtils ,Classes, Data.DB,  DBAccess, Uni, MemDS;
+uses SysUtils ,Classes, Data.DB,  DBAccess, Uni, MemDS,
+  MongoDBUniProvider, SQLiteUniProvider, SQLServerUniProvider,
+  PostgreSQLUniProvider, OracleUniProvider, NexusDBUniProvider,
+  MySQLUniProvider, InterBaseUniProvider, DBFUniProvider, DB2UniProvider,
+  ASEUniProvider, AdvantageUniProvider, UniProvider, ODBCUniProvider,
+  AccessUniProvider;
 
 type
 
@@ -56,11 +61,15 @@ type
       procedure First;
       procedure Last;
       procedure Previous;
-      function FieldByName(FieldName: string): TField;
       procedure Append;
       procedure Edit;
       procedure Post;
       function Eof: boolean;
+      function FieldByNameAsBoolean(FieldName: string): Boolean;
+      function FieldByNameAsDateTime(FieldName: string): TDateTime;
+      function FieldByNameAsFloat(FieldName: string): Double;
+      function FieldByNameAsInteger(FieldName: string): Longint;
+      function FieldByNameAsString(FieldName: string): String;
       property Active: boolean read GetActive write SetActive;
       property SQL: TStrings read GetSQL;
       property SQLDelete: TStrings read GetSQLDelete;
@@ -69,6 +78,8 @@ type
       property Connection: TSQLConnection read GetConnection write SetConnection;
 
   end;
+
+
 
 implementation
 
@@ -189,9 +200,29 @@ begin
   Result := UniQuery.Eof;
 end;
 
-function TSQLQuery.FieldByName(FieldName: string): TField;
+function TSQLQuery.FieldByNameAsBoolean(FieldName: string): Boolean;
 begin
-  Result := UniQuery.FieldByName(FieldName);
+  Result := UniQuery.FieldByName(FieldName).AsBoolean;
+end;
+
+function TSQLQuery.FieldByNameAsDateTime(FieldName: string): TDateTime;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsDateTime;
+end;
+
+function TSQLQuery.FieldByNameAsFloat(FieldName: string): Double;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsFloat;
+end;
+
+function TSQLQuery.FieldByNameAsInteger(FieldName: string): Longint;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsInteger;
+end;
+
+function TSQLQuery.FieldByNameAsString(FieldName: string): String;
+begin
+  Result := UniQuery.FieldByName(FieldName).AsString;
 end;
 
 procedure TSQLQuery.First;
@@ -269,5 +300,7 @@ begin
   FConnection := Value;
   UniQuery.Connection := Value.SQLConnection;
 end;
+
+
 
 end.
