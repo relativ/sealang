@@ -7,7 +7,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
   MultipartParser, MVCFramework.Session, SessionUnit, uPSComponent_DB,
-  System.Generics.Collections, uPSC_DB, uPSR_DB, uPSI_SqlExpr;
+  System.Generics.Collections, uPSC_DB, uPSR_DB, uPSI_SQLConnection;
 
 type
   TPascalModule = class(TWebModule)
@@ -20,7 +20,7 @@ type
   private
     SessionObject : TSession;
     RunTimeVariables: TDictionary<string, string>;
-    AppPath: string;
+    AppPath, MainFileName: string;
     procedure Compile(Request: TWebRequest; Response: TWebResponse);
     procedure MyOnCompile(Sender: TPSScript);
     procedure OnExecImport(Sender: TObject; se: TPSExec;
@@ -288,7 +288,7 @@ begin
 
   SIRegister_DB(Sender.Comp);
 
-  SIRegister_SqlExpr(Sender.Comp);
+  SIRegister_SQLConnection(Sender.Comp);
 
 
   Sender.AddRegisteredVariable('RESPONSE', 'TWebResponse');
@@ -320,9 +320,7 @@ begin
   RIRegister_HTTPApp_Routines(se);
 
   RIRegister_DB(x);
-
-  RIRegister_SqlExpr(x);
-  RIRegister_SqlExpr_Routines(se);
+  RIRegister_SQLConnection(x);
 
 end;
 
@@ -349,6 +347,7 @@ begin
       mainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
 
       PSScript:= TPSScript.Create(nil);
+      PSScript.MainFileName := MainFileName;
       RunTimeVariables:= TDictionary<string, string>.Create();
       sCode := StringLoadFile(mainFileName);
       sCode:= ParsePascalCodes(sCode, RunTimeVariables);
@@ -417,8 +416,8 @@ begin
 
     SessionObject.SetSessionId(SessionID);
 
-    AppPath := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
-    AppPath := ExtractFilePath(AppPath);
+    MainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
+    AppPath := ExtractFilePath(MainFileName);
 
 
 

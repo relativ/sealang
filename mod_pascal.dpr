@@ -55,7 +55,8 @@ uses
   MultipartParser in 'utils\MultipartParser.pas',
   MVCFramework.Session in 'utils\MVCFramework.Session.pas',
   SessionUnit in 'library\SessionUnit.pas',
-  uPSI_SqlExpr in 'library\uPSI_SqlExpr.pas';
+  SQLConnection in 'library\SQLConnection.pas',
+  uPSI_SQLConnection in 'library\uPSI_SQLConnection.pas';
 
 {$R *.res}
 

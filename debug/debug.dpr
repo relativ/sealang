@@ -2,7 +2,13 @@ program debug;
 
 uses
   Vcl.Forms,
-  main in 'main.pas' {Form1};
+  main in 'main.pas' {Form1},
+  uPSI_HTTPApp in '..\utils\uPSI_HTTPApp.pas',
+  MultipartParser in '..\utils\MultipartParser.pas',
+  SessionUnit in '..\library\SessionUnit.pas',
+  MVCFramework.Session in '..\utils\MVCFramework.Session.pas',
+  SQLConnection in '..\library\SQLConnection.pas',
+  uPSI_SQLConnection in '..\library\uPSI_SQLConnection.pas';
 
 {$R *.res}
 

@@ -2,26 +2,30 @@ unit main;
 
 interface
 
-uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DBXMySQL, Data.FMTBcd,
-  Data.SqlExpr, Data.DB, Vcl.StdCtrls, uPSComponent, uPSComponent_DB,
-  uPSComponent_Default;
+uses System.SysUtils, System.Classes, Web.HTTPApp,
+  Vcl.Forms,
+  Windows, Messages, Graphics, Controls,
+  ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
+  Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
+  MultipartParser, MVCFramework.Session, SessionUnit, uPSComponent_DB,
+  System.Generics.Collections, uPSC_DB, uPSR_DB, Data.FMTBcd,
+  Data.DBXMySQL, Data.DB, Data.SqlExpr, uPSComponent_Default, uPSC_std, uPSC_classes,
+  uPSC_graphics, uPSC_controls, uPSC_forms, uPSC_stdctrls, uPSR_std,
+  uPSR_classes, uPSR_controls, uPSR_forms, uPSR_dll, DBAccess, Uni, MemDS,
+  uPSI_SQLConnection;
 
 type
   TForm1 = class(TForm)
     Memo1: TMemo;
-    SQLQuery1: TSQLQuery;
-    SQLDataSet1: TSQLDataSet;
-    SQLTable1: TSQLTable;
-    Button1: TButton;
     Button2: TButton;
     PSScript1: TPSScript;
-    PSImport_DB1: TPSImport_DB;
-    PSImport_Classes1: TPSImport_Classes;
-    SQLConnection1: TSQLConnection;
-    procedure Button1Click(Sender: TObject);
+    UniConnection1: TUniConnection;
+    UniQuery1: TUniQuery;
     procedure Button2Click(Sender: TObject);
+    procedure PSScript1ExecImport(Sender: TObject; se: TPSExec;
+      x: TPSRuntimeClassImporter);
+    procedure PSScript1Compile(Sender: TPSScript);
+    procedure PSScript1Execute(Sender: TPSScript);
   private
     { Private declarations }
   public
@@ -35,27 +39,6 @@ implementation
 
 {$R *.dfm}
 
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-
-  SQLConnection1.DriverName := 'MySQL';
- // SQLConnection1.ConnectionName := 'MySQLConnection';
-  SQLConnection1.Params.Values['DriverName'] := 'MySQL';
-  SQLConnection1.Params.Values['Password'] := '';
-  SQLConnection1.Params.Values['HostName'] := 'localhost';
-  SQLConnection1.Params.Values['Database'] := 'mysql';
-  SQLConnection1.Params.Values['User_Name'] := 'root';
-  SQLConnection1.Connected := true;
-  SQLQuery1.Open;
-  SQLQuery1.SQL.Text := '';
-  while not SQLQuery1.Eof do
-  begin
-
-    Memo1.Lines.Add(SQLQuery1.FieldByName('User').AsString);
-    SQLQuery1.Next;
-  end;
-end;
-
 procedure TForm1.Button2Click(Sender: TObject);
 var
   a: TDataSetErrorEvent;
@@ -63,6 +46,51 @@ begin
   PSScript1.Script.Text := Memo1.Lines.Text;
   PSScript1.Compile();
   PSScript1.Execute();
+end;
+
+procedure TForm1.PSScript1Compile(Sender: TPSScript);
+begin
+  RegisterDateTimeLibrary_C(Sender.Comp);
+  SIRegister_Std(Sender.Comp);
+  SIRegister_Classes(Sender.Comp, True);
+  SIRegister_Graphics(Sender.Comp, True);
+  SIRegister_Controls(Sender.Comp);
+  SIRegister_stdctrls(Sender.Comp);
+  SIRegister_Forms(Sender.Comp);
+  SIRegister_ComObj(Sender.Comp);
+
+  SIRegister_HTTPApp(Sender.Comp);
+
+  SIRegister_DB(Sender.Comp);
+
+  SIRegister_SQLConnection(Sender.Comp);
+
+  Sender.AddRegisteredVariable('MEMO1', 'TMemo');
+end;
+
+procedure TForm1.PSScript1ExecImport(Sender: TObject; se: TPSExec;
+  x: TPSRuntimeClassImporter);
+begin
+  RIRegister_Std(x);
+  RIRegister_Classes(x,true);
+  RIRegister_Controls(x);
+  RIRegister_Forms(x);
+  RegisterDLLRuntime(se);
+  RegisterClassLibraryRuntime(se, x);
+  RIRegister_ComObj(se);
+  RIRegisterTObject(x);
+
+  RIRegister_HTTPApp(x);
+  RIRegister_HTTPApp_Routines(se);
+
+  RIRegister_DB(x);
+
+  RIRegister_SQLConnection(x);
+end;
+
+procedure TForm1.PSScript1Execute(Sender: TPSScript);
+begin
+  Sender.SetVarToInstance('MEMO1', Memo1);
 end;
 
 end.
