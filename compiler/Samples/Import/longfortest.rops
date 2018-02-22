@@ -6,5 +6,5 @@ Begin
   begin
     i2 := i -1;
   end;
-  {writeln(inttostr(i2));}
+  writeln(inttostr(i2));
 End.

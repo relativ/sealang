@@ -4,12 +4,15 @@
     </PropertyGroup>
     <ItemGroup>
         <Projects Include="mod_pascal.dproj">
+            <Dependencies>compiler\Source\PascalScript_Core_D25.dproj</Dependencies>
+        </Projects>
+        <Projects Include="debug\debug.dproj">
+            <Dependencies>compiler\Source\PascalScript_Core_D25.dproj</Dependencies>
+        </Projects>
+        <Projects Include="extensions\db\db.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="compiler\Source\PascalScript_Core_D25.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="debug\debug.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -20,14 +23,32 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="mod_pascal">
+    <Target Name="mod_pascal" DependsOnTargets="PascalScript_Core_D25">
         <MSBuild Projects="mod_pascal.dproj"/>
     </Target>
-    <Target Name="mod_pascal:Clean">
+    <Target Name="mod_pascal:Clean" DependsOnTargets="PascalScript_Core_D25:Clean">
         <MSBuild Projects="mod_pascal.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="mod_pascal:Make">
+    <Target Name="mod_pascal:Make" DependsOnTargets="PascalScript_Core_D25:Make">
         <MSBuild Projects="mod_pascal.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="debug" DependsOnTargets="PascalScript_Core_D25">
+        <MSBuild Projects="debug\debug.dproj"/>
+    </Target>
+    <Target Name="debug:Clean" DependsOnTargets="PascalScript_Core_D25:Clean">
+        <MSBuild Projects="debug\debug.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="debug:Make" DependsOnTargets="PascalScript_Core_D25:Make">
+        <MSBuild Projects="debug\debug.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="db">
+        <MSBuild Projects="extensions\db\db.dproj"/>
+    </Target>
+    <Target Name="db:Clean">
+        <MSBuild Projects="extensions\db\db.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="db:Make">
+        <MSBuild Projects="extensions\db\db.dproj" Targets="Make"/>
     </Target>
     <Target Name="PascalScript_Core_D25">
         <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj"/>
@@ -38,23 +59,14 @@
     <Target Name="PascalScript_Core_D25:Make">
         <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj" Targets="Make"/>
     </Target>
-    <Target Name="debug">
-        <MSBuild Projects="debug\debug.dproj"/>
-    </Target>
-    <Target Name="debug:Clean">
-        <MSBuild Projects="debug\debug.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="debug:Make">
-        <MSBuild Projects="debug\debug.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="mod_pascal;PascalScript_Core_D25;debug"/>
+        <CallTarget Targets="mod_pascal;debug;db;PascalScript_Core_D25"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="mod_pascal:Clean;PascalScript_Core_D25:Clean;debug:Clean"/>
+        <CallTarget Targets="mod_pascal:Clean;debug:Clean;db:Clean;PascalScript_Core_D25:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="mod_pascal:Make;PascalScript_Core_D25:Make;debug:Make"/>
+        <CallTarget Targets="mod_pascal:Make;debug:Make;db:Make;PascalScript_Core_D25:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

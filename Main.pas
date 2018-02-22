@@ -7,18 +7,31 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
   MultipartParser, MVCFramework.Session, SessionUnit, uPSComponent_DB,
-  System.Generics.Collections, uPSC_DB, uPSR_DB, uPSI_SQLConnection;
+  System.Generics.Collections, uPSC_DB, uPSR_DB, uPSComponent_StdCtrls,
+  uPSComponent_Controls, uPSComponent_COM, uPSComponent_Default;
 
 type
+  PPSPascalCompiler = ^ TPSPascalCompiler;
+  PPSRuntimeClassImporter = ^ TPSRuntimeClassImporter;
+
+  TRegisterPlugin = function(): TPSPlugin; stdcall;
+
   TPascalModule = class(TWebModule)
+    PSImport_Classes: TPSImport_Classes;
+    PSImport_DateUtils: TPSImport_DateUtils;
+    PSImport_ComObj: TPSImport_ComObj;
+    PSImport_DB: TPSImport_DB;
+    PSImport_Controls: TPSImport_Controls;
+    PSImport_StdCtrls: TPSImport_StdCtrls;
     procedure WebModuleException(Sender: TObject; E: Exception;
       var Handled: Boolean);
     procedure PascalModuleDefaultHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure WebModuleCreate(Sender: TObject);
     procedure WebModuleDestroy(Sender: TObject);
+    procedure WebModuleCreate(Sender: TObject);
   private
     SessionObject : TSession;
+    PluginList: TList<TPSPlugin>;
     RunTimeVariables: TDictionary<string, string>;
     AppPath, MainFileName: string;
     procedure Compile(Request: TWebRequest; Response: TWebResponse);
@@ -30,6 +43,8 @@ type
     procedure Write(s: string);
     procedure Writeln(s: string);
     function ParsePascalCodes(code: string; RunTimeVariables: TDictionary<string, string>; checkVariables: boolean = true): string;
+
+    procedure DLLPlugins();
   public
 
   end;
@@ -89,6 +104,8 @@ end;
 function ParseCheckVariables(line: string; RunTimeVariables: TDictionary<string, string>): string;
 var
   strLine, varStr, name, types: string;
+  sNames: TStringList;
+  I: Integer;
 begin
   strLine := line;
   while (Pos('var ', LowerCase(strLine)) > 0) do
@@ -100,7 +117,12 @@ begin
     Delete(varStr, 1, Pos(':', varStr));
     types := copy(varStr, 0, Pos(';', varStr) - 1);
     types := trim(types);
-    RunTimeVariables.Add(name, types);
+
+    sNames:= TStringList.Create;
+    sNames.Text := StringReplace(name, ',',#13,[rfReplaceAll]);
+    for I := 0 to sNames.Count -1 do
+      RunTimeVariables.Add(Trim(sNames[I]), types);
+    sNames.Free;
     Delete(strLine, Pos('var ', LowerCase(strLine)), Pos(';', strLine) + 1);
   end;
   Result := strLine;
@@ -146,97 +168,104 @@ begin
 end;
 
 function TPascalModule.ParsePascalCodes(code: string; RunTimeVariables: TDictionary<string, string>; checkVariables: boolean = true): string;
-  var
-    sList, tmpList, sLineCode: TStringList;
-    I: integer;
-    bStartCode, bEndCode, bOnylCode: boolean;
-    strLine, tmpStr, strInclude: string;
-    A: Integer;
-    sIncludeList: TStringList;
-  label StartParsing;
+var
+  sList, tmpList, sLineCode: TStringList;
+  I: integer;
+  bStartCode, bEndCode, bOnylCode: boolean;
+  strLine, tmpStr, strInclude: string;
+  A: Integer;
+  sIncludeList: TStringList;
+label StartParsing;
+begin
+  sList:= TStringList.Create;
+  sList.Text := code;
+
+  sIncludeList:= TStringList.Create;
+  sLineCode:= TStringList.Create;
+
+  bStartCode := false;
+  bEndCode   := true;
+  I := 0;
+  while I < sList.Count do
   begin
-    sList:= TStringList.Create;
-    sList.Text := code;
-
-    sIncludeList:= TStringList.Create;
-    sLineCode:= TStringList.Create;
-
-    bStartCode := false;
-    bEndCode   := true;
-    I := 0;
-    while I < sList.Count do
+    StartParsing:
+    strLine := sList[I];
+    if Pos('<?pas',strLine) > 0  then
     begin
-      StartParsing:
-      strLine := sList[I];
-      if Pos('<?pas',strLine) > 0  then
-      begin
-        bStartCode := true;
-        bEndCode := false;
-        bOnylCode := false;
-      end else if Pos('?>',strLine) > 0  then
-      begin
-        bStartCode := false;
-        bEndCode := true;
-        bOnylCode := false;
-      end else if bStartCode then
-      begin
-        bOnylCode := true;
-        bStartCode := false;
-      end;
+      bStartCode := true;
+      bEndCode := false;
+      bOnylCode := false;
+    end else if Pos('?>',strLine) > 0  then
+    begin
+      bStartCode := false;
+      bEndCode := true;
+      bOnylCode := false;
+    end else if bStartCode then
+    begin
+      bOnylCode := true;
+      bStartCode := false;
+    end;
 
-      if (checkVariables) then
-      begin
-        strLine := ParseCheckVariables(strLine, RunTimeVariables);
-      end;
-
-
-
-      if bStartCode then
-      begin
-          sLineCode.Add(ParseScriptLine(strLine));
-      end else if bEndCode then
-      begin
-        strLine := StringReplace(strLine, '?>', '', [rfReplaceAll]);
-        if Trim(strLine) <> '' then
-        begin
-          tmpStr := StringReplace(strLine, chr(39), chr(39) + chr(39), [rfReplaceAll]);
-          sLineCode.Add('echo(' + chr(39) + tmpStr + chr(39) + '); ');
-        end;
-      end else if bOnylCode then
-      begin
-          if Pos('{$I', strLine) > 0 then
-          begin
-            tmpStr := strLine;
-
-            Delete(tmpStr, 1, Pos(chr(39), tmpStr));
-            strInclude := Copy(tmpStr, 0, Pos(chr(39), tmpStr) - 1);
-
-            if sIncludeList.IndexOf(strInclude) = -1 then
-            begin
-              sIncludeList.Add(strInclude);
-              strInclude := StringLoadFile( AppPath + strInclude);
-              strInclude:= ParsePascalCodes(strInclude,RunTimeVariables, false);
-
-              tmpStr := Copy(strLine, Pos('{$I', strLine), Pos('}', strLine) + 1 );
-
-              sList.Text := StringReplace(sList.Text, tmpStr, strInclude, [rfReplaceAll]);
-
-              goto StartParsing;
-            end else raise Exception.Create('Circular include ' + strInclude);
-
-
-          end else
-            sLineCode.Add(strLine);
-      end;
-
-      Inc(I);
-
+    if (checkVariables) then
+    begin
+      strLine := ParseCheckVariables(strLine, RunTimeVariables);
     end;
 
 
-    Result := sLineCode.Text;
+
+    if bStartCode then
+    begin
+        sLineCode.Add(ParseScriptLine(strLine));
+    end else if bEndCode then
+    begin
+      strLine := StringReplace(strLine, '?>', '', [rfReplaceAll]);
+      if Trim(strLine) <> '' then
+      begin
+        tmpStr := StringReplace(strLine, chr(39), chr(39) + chr(39), [rfReplaceAll]);
+        sLineCode.Add('echo(' + chr(39) + tmpStr + chr(39) + '); ');
+      end;
+    end else if bOnylCode then
+    begin
+        if Pos('{$I', strLine) > 0 then
+        begin
+          tmpStr := strLine;
+
+          Delete(tmpStr, 1, Pos(chr(39), tmpStr));
+          strInclude := Copy(tmpStr, 0, Pos(chr(39), tmpStr) - 1);
+
+          if sIncludeList.IndexOf(strInclude) = -1 then
+          begin
+            sIncludeList.Add(strInclude);
+            strInclude := StringLoadFile( AppPath + strInclude);
+            strInclude:= ParsePascalCodes(strInclude,RunTimeVariables, false);
+
+            tmpStr := Copy(strLine, Pos('{$I', strLine), Pos('}', strLine) + 1 );
+
+            sList.Text := StringReplace(sList.Text, tmpStr, strInclude, [rfReplaceAll]);
+
+            goto StartParsing;
+          end else raise Exception.Create('Circular include ' + strInclude);
+
+
+        end else
+          sLineCode.Add(strLine);
+    end;
+
+    Inc(I);
+
   end;
 
+
+  Result := sLineCode.Text;
+end;
+
+
+procedure TPascalModule.WebModuleCreate(Sender: TObject);
+begin
+  SessionObject := TSession.Create;
+  PluginList := TList<TPSPlugin>.Create;
+  DLLPlugins();
+end;
 
 procedure TPascalModule.Write(s: string);
 begin
@@ -276,19 +305,11 @@ begin
 
 
   RegisterDateTimeLibrary_C(Sender.Comp);
-  SIRegister_Std(Sender.Comp);
-  SIRegister_Classes(Sender.Comp, True);
   SIRegister_Graphics(Sender.Comp, True);
-  SIRegister_Controls(Sender.Comp);
-  SIRegister_stdctrls(Sender.Comp);
-  SIRegister_Forms(Sender.Comp);
-  SIRegister_ComObj(Sender.Comp);
 
   SIRegister_HTTPApp(Sender.Comp);
 
   SIRegister_DB(Sender.Comp);
-
-  SIRegister_SQLConnection(Sender.Comp);
 
 
   Sender.AddRegisteredVariable('RESPONSE', 'TWebResponse');
@@ -307,24 +328,51 @@ end;
 procedure TPascalModule.OnExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
 begin
 
-  RIRegister_Std(x);
-  RIRegister_Classes(x,true);
-  RIRegister_Controls(x);
-  RIRegister_Forms(x);
   RegisterDLLRuntime(se);
   RegisterClassLibraryRuntime(se, x);
-  RIRegister_ComObj(se);
   RIRegisterTObject(x);
 
   RIRegister_HTTPApp(x);
   RIRegister_HTTPApp_Routines(se);
 
   RIRegister_DB(x);
-  RIRegister_SQLConnection(x);
 
 end;
 
+procedure TPascalModule.DLLPlugins();
+var
+ dllHandle : cardinal;
+ searchResult : TSearchRec;
+ ExtensionPath: string;
+ DLLHandleList: TList<UInt64>;
+ method: TRegisterPlugin;
+ plugin: TPSPlugin;
+begin
+  DLLHandleList:= TList<UInt64>.Create;
 
+  ExtensionPath := ExtractFilePath(GetModuleName(HInstance));
+
+  if findfirst(ExtensionPath + '*.dll', faAnyFile, searchResult) = 0 then
+  begin
+    repeat
+      if searchResult.Name = 'mod_pascal.dll' then continue;
+
+      dllHandle := LoadLibrary(PWideChar(ExtensionPath + searchResult.Name));
+
+      @method := GetProcAddress(dllHandle, 'PSPluginCreate') ;
+      if Assigned (method) then
+      begin
+        plugin := method();
+        PluginList.Add(plugin);
+      end;
+
+      //FreeLibrary(dllHandle) ;
+    until FindNext(searchResult) <> 0;
+    FindClose(searchResult.FindHandle);
+  end;
+
+
+end;
 
 procedure TPascalModule.Compile(Request: TWebRequest; Response: TWebResponse);
 var
@@ -347,6 +395,17 @@ begin
       mainFileName := StringReplace(Request.PathTranslated, '/', '\', [rfReplaceAll]);
 
       PSScript:= TPSScript.Create(nil);
+      (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_Classes;
+      (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_DateUtils;
+      (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_ComObj;
+      (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_DB;
+      (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_Controls;
+      (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_StdCtrls;
+      for I := 0 to PluginList.Count -1 do
+      begin
+        (PSScript.Plugins.Add as TPSPluginItem).Plugin := PluginList.Items[I];
+      end;
+
       PSScript.MainFileName := MainFileName;
       RunTimeVariables:= TDictionary<string, string>.Create();
       sCode := StringLoadFile(mainFileName);
@@ -430,14 +489,12 @@ begin
   end;
 end;
 
-procedure TPascalModule.WebModuleCreate(Sender: TObject);
-begin
-  SessionObject := TSession.Create;
-end;
-
 procedure TPascalModule.WebModuleDestroy(Sender: TObject);
+var
+  I: Integer;
 begin
   SessionObject.Free;
+  PluginList.Free;
 end;
 
 procedure TPascalModule.WebModuleException(Sender: TObject; E: Exception;

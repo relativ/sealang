@@ -11,27 +11,32 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   System.Generics.Collections, uPSC_DB, uPSR_DB, Data.FMTBcd,
   Data.DBXMySQL, Data.DB, Data.SqlExpr, uPSComponent_Default, uPSC_std, uPSC_classes,
   uPSC_graphics, uPSC_controls, uPSC_forms, uPSC_stdctrls, uPSR_std,
-  uPSR_classes, uPSR_controls, uPSR_forms, uPSR_dll, DBAccess, Uni, MemDS,
-  uPSI_SQLConnection, UniProvider, ODBCUniProvider, AdvantageUniProvider,
-  MongoDBUniProvider, SQLiteUniProvider, SQLServerUniProvider,
-  PostgreSQLUniProvider, OracleUniProvider, NexusDBUniProvider,
-  MySQLUniProvider, InterBaseUniProvider, DBFUniProvider, DB2UniProvider,
-  ASEUniProvider, AccessUniProvider;
+  uPSR_classes, uPSR_controls, uPSR_forms, uPSR_dll, uPSComponent_StdCtrls,
+  uPSComponent_Controls, uPSComponent_COM;
 
 
 type
+  TRegisterPlugin = function(): TPSPlugin; stdcall;
+
   TForm1 = class(TForm)
     Memo1: TMemo;
     Button2: TButton;
     PSScript1: TPSScript;
-    UniConnection1: TUniConnection;
-    UniQuery1: TUniQuery;
+    PSDllPlugin1: TPSDllPlugin;
+    PSImport_Classes1: TPSImport_Classes;
+    PSImport_DateUtils1: TPSImport_DateUtils;
+    PSImport_ComObj1: TPSImport_ComObj;
+    PSImport_DB1: TPSImport_DB;
+    PSImport_Controls1: TPSImport_Controls;
+    PSImport_StdCtrls1: TPSImport_StdCtrls;
     procedure Button2Click(Sender: TObject);
-    procedure PSScript1ExecImport(Sender: TObject; se: TPSExec;
-      x: TPSRuntimeClassImporter);
-    procedure PSScript1Compile(Sender: TPSScript);
+    procedure FormCreate(Sender: TObject);
     procedure PSScript1Execute(Sender: TPSScript);
+    procedure PSScript1Compile(Sender: TPSScript);
+    procedure PSScript1ExecImport(Sender: TObject; const se: TPSExec;
+      const x: TPSRuntimeClassImporter);
   private
+    procedure DLLPlugins(PSScript: TPSScript);
     { Private declarations }
   public
     { Public declarations }
@@ -43,6 +48,49 @@ var
 implementation
 
 {$R *.dfm}
+
+
+procedure TForm1.DLLPlugins(PSScript: TPSScript);
+var
+ dllHandle : cardinal;
+ searchResult : TSearchRec;
+ ExtensionPath: string;
+ DLLHandleList: TList<UInt64>;
+ method: TRegisterPlugin;
+ plugin: TPSPlugin;
+ psPluginItem: TPSPluginItem;
+begin
+  DLLHandleList:= TList<UInt64>.Create;
+
+  ExtensionPath := ExtractFilePath(Application.ExeName);
+
+  if findfirst(ExtensionPath + '*.dll', faAnyFile, searchResult) = 0 then
+  begin
+    repeat
+      dllHandle := LoadLibrary(PWideChar(ExtensionPath + searchResult.Name));
+
+      @method := GetProcAddress(dllHandle, 'PSPluginCreate') ;
+      if Assigned (method) then
+      begin
+        plugin := method();
+        psPluginItem := PSScript.Plugins.Add as TPSPluginItem;
+        psPluginItem.Plugin := plugin;
+      end;
+
+      //FreeLibrary(dllHandle) ;
+    until FindNext(searchResult) <> 0;
+    FindClose(searchResult.FindHandle);
+  end;
+
+
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  DLLPlugins(PSScript1);
+ // plugin := TPSImport.Create(nil);
+  //(PSScript1.Plugins.Add as TPSPluginItem).Plugin := TPSPlugin(plugin.GetSelf);
+end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
@@ -59,6 +107,7 @@ var
 
 begin
   try
+
 
       PSScript1.Script.Text := Memo1.Lines.Text;
       PSScript1.Comp.AllowNoEnd := true;
@@ -81,42 +130,19 @@ end;
 
 procedure TForm1.PSScript1Compile(Sender: TPSScript);
 begin
-  RegisterDateTimeLibrary_C(Sender.Comp);
-  SIRegister_Std(Sender.Comp);
-  SIRegister_Classes(Sender.Comp, True);
-  SIRegister_Graphics(Sender.Comp, True);
-  SIRegister_Controls(Sender.Comp);
-  SIRegister_stdctrls(Sender.Comp);
-  SIRegister_Forms(Sender.Comp);
-  SIRegister_ComObj(Sender.Comp);
-
   SIRegister_HTTPApp(Sender.Comp);
-
-  SIRegister_DB(Sender.Comp);
-
-  SIRegister_SQLConnection(Sender.Comp);
 
   Sender.AddRegisteredVariable('MEMO1', 'TMemo');
 end;
 
-procedure TForm1.PSScript1ExecImport(Sender: TObject; se: TPSExec;
-  x: TPSRuntimeClassImporter);
+procedure TForm1.PSScript1ExecImport(Sender: TObject; const se: TPSExec;
+  const x: TPSRuntimeClassImporter);
 begin
-  RIRegister_Std(x);
-  RIRegister_Classes(x,true);
-  RIRegister_Controls(x);
-  RIRegister_Forms(x);
-  RegisterDLLRuntime(se);
   RegisterClassLibraryRuntime(se, x);
-  RIRegister_ComObj(se);
   RIRegisterTObject(x);
 
   RIRegister_HTTPApp(x);
   RIRegister_HTTPApp_Routines(se);
-
-  RIRegister_DB(x);
-
-  RIRegister_SQLConnection(x);
 end;
 
 procedure TForm1.PSScript1Execute(Sender: TPSScript);

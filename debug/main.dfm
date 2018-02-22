@@ -11,6 +11,7 @@ object Form1: TForm1
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Memo1: TMemo
@@ -22,6 +23,7 @@ object Form1: TForm1
       'Program IFSTest;'
       'var'
       #9'SQLConnection: TSQLConnection;'
+      #9'SQLQuery: TSQLQuery;'
       'Begin'
       #9'SQLConnection:= TSQLConnection.Create();'
       
@@ -31,9 +33,28 @@ object Form1: TForm1
       #9'SQLConnection.UserName := '#39'root'#39';'
       #9'SQLConnection.Password := '#39'toor'#39';'
       #9'SQLConnection.Server := '#39'localhost'#39';'
-      #9'SQLConnection.Database := '#39'mysql'#39';'
+      #9'SQLConnection.Database := '#39'mysql'#39'; '
       #9'SQLConnection.Open();'
-      'end.')
+      #9
+      #9'SQLQuery:= TSQLQuery.Create();'
+      #9'SQLQuery.Connection := SQLConnection;'
+      #9'SQLQuery.SQL.Text := '#39'select * from user'#39';'
+      #9'SQLQuery.Open;'
+      #9'while not SQLQuery.Eof do'
+      #9'begin'
+      
+        '                                Memo1.Lines.Add(SQLQuery.FieldBy' +
+        'NameAsString('#39'User'#39')) ;'
+      #9#9'SQLQuery.Next;'
+      #9'end;'
+      #9
+      #9'SQLQuery.Close();'
+      #9'SQLQuery.Free();'
+      #9
+      #9'SQLConnection.Close();'
+      #9'SQLConnection.free();'
+      #9
+      'End.')
     ScrollBars = ssBoth
     TabOrder = 0
   end
@@ -51,24 +72,65 @@ object Form1: TForm1
     OnCompile = PSScript1Compile
     OnExecute = PSScript1Execute
     OnExecImport = PSScript1ExecImport
-    Plugins = <>
+    Plugins = <
+      item
+        Plugin = PSDllPlugin1
+      end
+      item
+        Plugin = PSImport_Classes1
+      end
+      item
+        Plugin = PSImport_ComObj1
+      end
+      item
+        Plugin = PSImport_Controls1
+      end
+      item
+        Plugin = PSImport_DateUtils1
+      end
+      item
+        Plugin = PSImport_StdCtrls1
+      end
+      item
+        Plugin = PSImport_DB1
+      end>
     UsePreProcessor = False
     Left = 688
     Top = 144
   end
-  object UniConnection1: TUniConnection
-    ProviderName = 'MongoDB'
-    Database = 'mysql'
-    Username = 'root'
-    Server = 'localhost'
-    LoginPrompt = False
-    Left = 704
-    Top = 248
-    EncryptedPassword = '8BFF90FF90FF8DFF'
+  object PSDllPlugin1: TPSDllPlugin
+    Left = 384
+    Top = 240
   end
-  object UniQuery1: TUniQuery
-    Connection = UniConnection1
-    Left = 696
-    Top = 320
+  object PSImport_Classes1: TPSImport_Classes
+    EnableStreams = True
+    EnableClasses = True
+    Left = 472
+    Top = 296
+  end
+  object PSImport_DateUtils1: TPSImport_DateUtils
+    Left = 552
+    Top = 280
+  end
+  object PSImport_ComObj1: TPSImport_ComObj
+    Left = 640
+    Top = 280
+  end
+  object PSImport_DB1: TPSImport_DB
+    Left = 464
+    Top = 240
+  end
+  object PSImport_Controls1: TPSImport_Controls
+    EnableStreams = True
+    EnableGraphics = True
+    EnableControls = True
+    Left = 544
+    Top = 232
+  end
+  object PSImport_StdCtrls1: TPSImport_StdCtrls
+    EnableExtCtrls = True
+    EnableButtons = True
+    Left = 640
+    Top = 224
   end
 end

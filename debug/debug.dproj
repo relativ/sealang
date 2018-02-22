@@ -94,11 +94,18 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <UsePackages>true</UsePackages>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_UsePackage>PascalScript_Core_D25;unidac230;unidacvcl230;rtl;dbrtl</DCC_UsePackage>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_UsePackage>unidac230;unidacvcl230;PascalScript_Core_D25;rtl;dbrtl;$(DCC_UsePackage)</DCC_UsePackage>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
     </PropertyGroup>
@@ -128,8 +135,6 @@
         <DCCReference Include="..\utils\MultipartParser.pas"/>
         <DCCReference Include="..\library\SessionUnit.pas"/>
         <DCCReference Include="..\utils\MVCFramework.Session.pas"/>
-        <DCCReference Include="..\library\SQLConnection.pas"/>
-        <DCCReference Include="..\library\uPSI_SQLConnection.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

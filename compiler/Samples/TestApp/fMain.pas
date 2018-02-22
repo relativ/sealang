@@ -4,9 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls, uPSComponent, uPSCompiler, Menus, uPSRuntime, Variants,
-  uPSComponent_StdCtrls, uPSComponent_Controls, uPSComponent_Forms,
-  uPSComponent_DB, uPSComponent_COM, uPSComponent_Default;
+  ExtCtrls, StdCtrls, uPSComponent, uPSCompiler, Menus, uPSRuntime, Variants;
 
 type
   TForm1 = class(TForm)
@@ -18,13 +16,6 @@ type
     Compile1: TMenuItem;
     PSScript: TPSScript;
     PSDllPlugin1: TPSDllPlugin;
-    PSImport_Classes1: TPSImport_Classes;
-    PSImport_DateUtils1: TPSImport_DateUtils;
-    PSImport_ComObj1: TPSImport_ComObj;
-    PSImport_DB1: TPSImport_DB;
-    PSImport_Forms1: TPSImport_Forms;
-    PSImport_Controls1: TPSImport_Controls;
-    PSImport_StdCtrls1: TPSImport_StdCtrls;
     procedure IFPS3ClassesPlugin1CompImport(Sender: TObject;
       x: TPSPascalCompiler);
     procedure IFPS3ClassesPlugin1ExecImport(Sender: TObject; Exec: TPSExec;
@@ -70,9 +61,6 @@ begin
   SIRegister_stdctrls(x);
   SIRegister_Forms(x);
     SIRegister_ComObj(x);
-
-
-
 end;
 
 procedure TForm1.IFPS3ClassesPlugin1ExecImport(Sender: TObject; Exec: TIFPSExec;

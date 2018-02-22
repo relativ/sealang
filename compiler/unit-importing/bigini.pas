@@ -222,7 +222,7 @@ It's a descendant of TStringList with "enhanced" IndexOf function (and others)
     constructor Create;
     function    EraseDuplicates(callBackProc:TEraseSectionCallback) : Boolean;
     function    GetSectionItems(index: Integer): TStringList;
-    function    IndexOf(const S: string): Integer; override;
+    function    IndexOf(const S: AnsiString): Integer; override;
     function    IndexOfName(const name: string): Integer; //override;
     property    SectionItems[index: Integer]: TStringList Read GetSectionItems;
   end;
@@ -546,7 +546,7 @@ end;
 {. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . }
 { search string                                                              }
 {. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . }
-function TSectionList.IndexOf(const S: string): Integer;
+function TSectionList.IndexOf(const S: AnsiString): Integer;
 var
   ix,
   LastIX        : Integer;
@@ -1411,7 +1411,7 @@ begin
   bufPtr  := Pointer(Buffer);
   for ix := 0 to result -1 do
   begin
-    bufPtr[ix] := chr(StrToIntDef('$' + Copy(hexDump,1 + ix*2,2) ,0));
+    Byte(bufPtr[ix]) := StrToIntDef('$' + Copy(hexDump,1 + ix*2,2) ,0);
   end;
 end;
 
