@@ -14,6 +14,12 @@ object Form1: TForm1
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object Image1: TImage
+    Left = 704
+    Top = 208
+    Width = 105
+    Height = 105
+  end
   object Memo1: TMemo
     Left = 8
     Top = 8
@@ -66,6 +72,15 @@ object Form1: TForm1
     Caption = 'Button2'
     TabOrder = 1
     OnClick = Button2Click
+  end
+  object Button1: TButton
+    Left = 672
+    Top = 95
+    Width = 75
+    Height = 25
+    Caption = 'Button2'
+    TabOrder = 2
+    OnClick = Button1Click
   end
   object PSScript1: TPSScript
     CompilerOptions = []
@@ -132,5 +147,18 @@ object Form1: TForm1
     EnableButtons = True
     Left = 640
     Top = 224
+  end
+  object IdTCPClient1: TIdTCPClient
+    ConnectTimeout = 0
+    IPVersion = Id_IPv4
+    Port = 0
+    ReadTimeout = -1
+    Left = 696
+    Top = 368
+  end
+  object IdUDPClient1: TIdUDPClient
+    Port = 0
+    Left = 608
+    Top = 376
   end
 end

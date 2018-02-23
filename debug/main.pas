@@ -12,7 +12,9 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   Data.DBXMySQL, Data.DB, Data.SqlExpr, uPSComponent_Default, uPSC_std, uPSC_classes,
   uPSC_graphics, uPSC_controls, uPSC_forms, uPSC_stdctrls, uPSR_std,
   uPSR_classes, uPSR_controls, uPSR_forms, uPSR_dll, uPSComponent_StdCtrls,
-  uPSComponent_Controls, uPSComponent_COM;
+  uPSComponent_Controls, uPSComponent_COM, IdUDPBase, IdUDPClient,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
+  pngimage;
 
 
 type
@@ -29,12 +31,17 @@ type
     PSImport_DB1: TPSImport_DB;
     PSImport_Controls1: TPSImport_Controls;
     PSImport_StdCtrls1: TPSImport_StdCtrls;
+    IdTCPClient1: TIdTCPClient;
+    IdUDPClient1: TIdUDPClient;
+    Button1: TButton;
+    Image1: TImage;
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure PSScript1Execute(Sender: TPSScript);
     procedure PSScript1Compile(Sender: TPSScript);
     procedure PSScript1ExecImport(Sender: TObject; const se: TPSExec;
       const x: TPSRuntimeClassImporter);
+    procedure Button1Click(Sender: TObject);
   private
     procedure DLLPlugins(PSScript: TPSScript);
     { Private declarations }
@@ -92,6 +99,12 @@ begin
   //(PSScript1.Plugins.Add as TPSPluginItem).Plugin := TPSPlugin(plugin.GetSelf);
 end;
 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  image1.Picture.LoadFromFile('C:\wamp\www\resim.jpg');
+
+end;
+
 procedure TForm1.Button2Click(Sender: TObject);
 var
   PSScript: TPSScript;
@@ -108,8 +121,8 @@ var
 begin
   try
 
-
       PSScript1.Script.Text := Memo1.Lines.Text;
+
       PSScript1.Comp.AllowNoEnd := true;
       PSScript1.Comp.AllowNoBegin := true;
       PSScript1.Comp.AllowUnit := true;
@@ -124,6 +137,7 @@ begin
         for i:= 0 to PSScript1.CompilerMessageCount - 1 do
           Outputtxt(PSScript1.CompilerMessages[i].MessageToString + #13);
       end;
+
   finally
   end;
 end;

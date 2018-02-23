@@ -15,6 +15,7 @@ uses
 procedure SIRegister_Std_TypesAndConsts(Cl: TPSPascalCompiler);
 procedure SIRegisterTObject(CL: TPSPascalCompiler);
 procedure SIRegisterTPersistent(Cl: TPSPascalCompiler);
+procedure SIRegisterTInterfacedPersistent(Cl: TPSPascalCompiler);
 procedure SIRegisterTComponent(Cl: TPSPascalCompiler);
 
 procedure SIRegister_Std(Cl: TPSPascalCompiler);
@@ -35,6 +36,16 @@ begin
   with Cl.AddClassN(cl.FindClass('TObject'), 'TPersistent') do
   begin
     RegisterMethod('procedure Assign(Source: TPersistent)');
+  end;
+end;
+
+procedure SIRegisterTInterfacedPersistent(Cl: TPSPascalCompiler);
+begin
+  with Cl.AddClassN(cl.FindClass('TPersistent'), 'TInterfacedPersistent') do
+  begin
+    RegisterMethod('function QueryInterface(const IID: TGUID; out Obj): HResult');
+    RegisterMethod('procedure AfterConstruction');
+
   end;
 end;
 
@@ -76,6 +87,7 @@ begin
   SIRegister_Std_TypesAndConsts(Cl);
   SIRegisterTObject(CL);
   SIRegisterTPersistent(Cl);
+  SIRegisterTInterfacedPersistent(Cl);
   SIRegisterTComponent(Cl);
 end;
 
@@ -83,5 +95,6 @@ end;
 
 
 End.
+
 
 

@@ -8,7 +8,8 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
   MultipartParser, MVCFramework.Session, SessionUnit, uPSComponent_DB,
   System.Generics.Collections, uPSC_DB, uPSR_DB, uPSComponent_StdCtrls,
-  uPSComponent_Controls, uPSComponent_COM, uPSComponent_Default;
+  uPSComponent_Controls, uPSComponent_COM, uPSComponent_Default, Jpeg,
+  pngimage;
 
 type
   PPSPascalCompiler = ^ TPSPascalCompiler;
@@ -471,7 +472,6 @@ begin
   try
 
     SessionID := GetSessionID(Request, Response);
-
 
     SessionObject.SetSessionId(SessionID);
 

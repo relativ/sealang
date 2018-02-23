@@ -8,6 +8,7 @@ uses
 
 procedure RIRegisterTObject(CL: TPSRuntimeClassImporter);
 procedure RIRegisterTPersistent(Cl: TPSRuntimeClassImporter);
+procedure RIRegisterTInterfacedPersistent(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTComponent(Cl: TPSRuntimeClassImporter);
 procedure RIRegister_Std(Cl: TPSRuntimeClassImporter);
 
@@ -31,6 +32,15 @@ begin
   with Cl.Add(TPersistent) do
   begin
     RegisterVirtualMethod(@TPersistent.Assign, 'Assign');
+  end;
+end;
+
+procedure RIRegisterTInterfacedPersistent(Cl: TPSRuntimeClassImporter);
+begin
+  with Cl.Add(TInterfacedPersistent) do
+  begin
+    RegisterVirtualMethod(@TInterfacedPersistent.QueryInterface, 'QueryInterface');
+    RegisterMethod(@TInterfacedPersistent.AfterConstruction, 'AfterConstruction');
   end;
 end;
 
@@ -73,6 +83,7 @@ procedure RIRegister_Std(Cl: TPSRuntimeClassImporter);
 begin
   RIRegisterTObject(CL);
   RIRegisterTPersistent(Cl);
+  RIRegisterTInterfacedPersistent(Cl);
   RIRegisterTComponent(Cl);
 end;
 // PS_MINIVCL changes by Martijn Laan (mlaan at wintax _dot_ nl)

@@ -103,8 +103,9 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <UsePackages>true</UsePackages>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UsePackage>unidac230;unidacvcl230;PascalScript_Core_D25;rtl;dbrtl;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>unidac230;unidacvcl230;PascalScript_Core_D25;rtl;dbrtl;vcl</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
