@@ -15,8 +15,8 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
-    Left = 704
-    Top = 208
+    Left = 664
+    Top = 216
     Width = 105
     Height = 105
   end
@@ -28,21 +28,21 @@ object Form1: TForm1
     Lines.Strings = (
       'Program IFSTest;'
       'var'
-      #9'SQLConnection: TSQLConnection;'
-      #9'SQLQuery: TSQLQuery;'
+      #9'SQLConnection: TDBConnection;'
+      #9'SQLQuery: TDBQuery;'
       'Begin'
-      #9'SQLConnection:= TSQLConnection.Create();'
+      #9'SQLConnection:= TDBConnection.Create();'
       
         #9'SQLConnection.ProviderName := '#39'MySQL'#39'; // Access, Advantage, AS' +
         'E, DB2, DBF, InterBase, MySQL, NexusDB, ODBC, Oracle, PostgreSQL' +
         ', SQL Server, SQLite, MongoDB'
       #9'SQLConnection.UserName := '#39'root'#39';'
-      #9'SQLConnection.Password := '#39'toor'#39';'
+      #9'SQLConnection.Password := '#39#39';'
       #9'SQLConnection.Server := '#39'localhost'#39';'
-      #9'SQLConnection.Database := '#39'mysql'#39'; '
+      #9'SQLConnection.Database := '#39'mysql'#39';'
       #9'SQLConnection.Open();'
       #9
-      #9'SQLQuery:= TSQLQuery.Create();'
+      #9'SQLQuery:= TDBQuery.Create();'
       #9'SQLQuery.Connection := SQLConnection;'
       #9'SQLQuery.SQL.Text := '#39'select * from user'#39';'
       #9'SQLQuery.Open;'

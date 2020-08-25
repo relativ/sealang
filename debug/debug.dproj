@@ -6,7 +6,7 @@
         <MainSource>debug.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -110,7 +110,7 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <UsePackages>true</UsePackages>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UsePackage>unidac230;unidacvcl230;PascalScript_Core_D25;rtl;dbrtl;vcl</DCC_UsePackage>
+        <DCC_UsePackage>PascalScript_Core_D25</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
@@ -163,10 +163,13 @@
                     <Source Name="MainSource">debug.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k230.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp230.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k230.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp230.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\19.0\Bpl\CEF4Delphi_FMX.bpl">CEF4Delphi</Excluded_Packages>
+                    <Excluded_Packages Name="D:\Projeler\PidginJS\Win32\Debug\paxcomp_xe7.bpl">(untitled)</Excluded_Packages>
+                    <Excluded_Packages Name="D:\Projeler\PascalDHTML\Win32\Debug\PascalScript_Core_D26.bpl">File D:\Projeler\PascalDHTML\Win32\Debug\PascalScript_Core_D26.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k250.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp250.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">

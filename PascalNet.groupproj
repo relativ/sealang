@@ -9,10 +9,19 @@
         <Projects Include="debug\debug.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="extensions\db\db.dproj">
+        <Projects Include="compiler\Source\PascalScript_Core_D25.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="compiler\Source\PascalScript_Core_D25.dproj">
+        <Projects Include="extensions\DB\DataAccess.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="extensions\Encryption\Encryptions.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="extensions\Socket\ClientSockets.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="extensions\XML\XML.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -41,15 +50,6 @@
     <Target Name="debug:Make">
         <MSBuild Projects="debug\debug.dproj" Targets="Make"/>
     </Target>
-    <Target Name="db">
-        <MSBuild Projects="extensions\db\db.dproj"/>
-    </Target>
-    <Target Name="db:Clean">
-        <MSBuild Projects="extensions\db\db.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="db:Make">
-        <MSBuild Projects="extensions\db\db.dproj" Targets="Make"/>
-    </Target>
     <Target Name="PascalScript_Core_D25">
         <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj"/>
     </Target>
@@ -59,14 +59,50 @@
     <Target Name="PascalScript_Core_D25:Make">
         <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj" Targets="Make"/>
     </Target>
+    <Target Name="DataAccess">
+        <MSBuild Projects="extensions\DB\DataAccess.dproj"/>
+    </Target>
+    <Target Name="DataAccess:Clean">
+        <MSBuild Projects="extensions\DB\DataAccess.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataAccess:Make">
+        <MSBuild Projects="extensions\DB\DataAccess.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Encryptions">
+        <MSBuild Projects="extensions\Encryption\Encryptions.dproj"/>
+    </Target>
+    <Target Name="Encryptions:Clean">
+        <MSBuild Projects="extensions\Encryption\Encryptions.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Encryptions:Make">
+        <MSBuild Projects="extensions\Encryption\Encryptions.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ClientSockets">
+        <MSBuild Projects="extensions\Socket\ClientSockets.dproj"/>
+    </Target>
+    <Target Name="ClientSockets:Clean">
+        <MSBuild Projects="extensions\Socket\ClientSockets.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ClientSockets:Make">
+        <MSBuild Projects="extensions\Socket\ClientSockets.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="XML">
+        <MSBuild Projects="extensions\XML\XML.dproj"/>
+    </Target>
+    <Target Name="XML:Clean">
+        <MSBuild Projects="extensions\XML\XML.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="XML:Make">
+        <MSBuild Projects="extensions\XML\XML.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="mod_pascal;debug;db;PascalScript_Core_D25"/>
+        <CallTarget Targets="mod_pascal;debug;PascalScript_Core_D25;DataAccess;Encryptions;ClientSockets;XML"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="mod_pascal:Clean;debug:Clean;db:Clean;PascalScript_Core_D25:Clean"/>
+        <CallTarget Targets="mod_pascal:Clean;debug:Clean;PascalScript_Core_D25:Clean;DataAccess:Clean;Encryptions:Clean;ClientSockets:Clean;XML:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="mod_pascal:Make;debug:Make;db:Make;PascalScript_Core_D25:Make"/>
+        <CallTarget Targets="mod_pascal:Make;debug:Make;PascalScript_Core_D25:Make;DataAccess:Make;Encryptions:Make;ClientSockets:Make;XML:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

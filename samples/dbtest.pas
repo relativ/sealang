@@ -2,10 +2,10 @@
 
 Program IFSTest;
 var
-	SQLConnection: TSQLConnection;
-	SQLQuery: TSQLQuery;
+	SQLConnection: TDBConnection;
+	SQLQuery: TDBQuery;
 Begin
-	SQLConnection:= TSQLConnection.Create();
+	SQLConnection:= TDBConnection.Create();
 	SQLConnection.ProviderName := 'MySQL'; // Access, Advantage, ASE, DB2, DBF, InterBase, MySQL, NexusDB, ODBC, Oracle, PostgreSQL, SQL Server, SQLite, MongoDB
 	SQLConnection.UserName := 'root';
 	SQLConnection.Password := 'toor';
@@ -13,7 +13,7 @@ Begin
 	SQLConnection.Database := 'mysql';
 	SQLConnection.Open();
 	
-	SQLQuery:= TSQLQuery.Create();
+	SQLQuery:= TDBQuery.Create();
 	SQLQuery.Connection := SQLConnection;
 	SQLQuery.SQL.Text := 'select * from user';
 	SQLQuery.Open;

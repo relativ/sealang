@@ -354,7 +354,7 @@ var
 begin
   DLLHandleList:= TList<UInt64>.Create;
 
-  ExtensionPath := ExtractFilePath(GetModuleName(HInstance)) + 'extensions\';
+  ExtensionPath := ExtractFilePath(GetModuleName(HInstance));
 
   if findfirst(ExtensionPath + '*.dll', faAnyFile, searchResult) = 0 then
   begin
