@@ -374,14 +374,6 @@ procedure TWebResponseContent_R(Self: TWebResponse; var T: string);
 begin T := Self.Content; end;
 
 (*----------------------------------------------------------------------------*)
-procedure TWebResponseRawContent_W(Self: TWebResponse; const T: AnsiString);
-begin Self.RawContent := T; end;
-
-(*----------------------------------------------------------------------------*)
-procedure TWebResponseRawContent_R(Self: TWebResponse; var T: AnsiString);
-begin T := Self.RawContent; end;
-
-(*----------------------------------------------------------------------------*)
 procedure TWebResponseLastModified_W(Self: TWebResponse; const T: TDateTime);
 begin Self.LastModified := T; end;
 
@@ -666,10 +658,6 @@ procedure TWebRequestContent_R(Self: TWebRequest; var T: string);
 begin T := Self.Content; end;
 
 (*----------------------------------------------------------------------------*)
-procedure TWebRequestRawContent_R(Self: TWebRequest; var T: AnsiString);
-begin T := Self.RawContent; end;
-
-(*----------------------------------------------------------------------------*)
 procedure TWebRequestContentVersion_R(Self: TWebRequest; var T: AnsiString);
 begin T := Self.ContentVersion; end;
 
@@ -832,7 +820,6 @@ begin
     RegisterPropertyHelper(@TWebResponseDate_R,@TWebResponseDate_W,'Date');
     RegisterPropertyHelper(@TWebResponseExpires_R,@TWebResponseExpires_W,'Expires');
     RegisterPropertyHelper(@TWebResponseLastModified_R,@TWebResponseLastModified_W,'LastModified');
-    RegisterPropertyHelper(@TWebResponseRawContent_R,@TWebResponseRawContent_W,'RawContent');
     RegisterPropertyHelper(@TWebResponseContent_R,@TWebResponseContent_W,'Content');
     RegisterPropertyHelper(@TWebResponseContentStream_R,@TWebResponseContentStream_W,'ContentStream');
     RegisterPropertyHelper(@TWebResponseLogMessage_R,@TWebResponseLogMessage_W,'LogMessage');
@@ -964,7 +951,6 @@ begin
     RegisterPropertyHelper(@TWebRequestContentType_R,nil,'ContentType');
     RegisterPropertyHelper(@TWebRequestContentLength_R,nil,'ContentLength');
     RegisterPropertyHelper(@TWebRequestContentVersion_R,nil,'ContentVersion');
-    RegisterPropertyHelper(@TWebRequestRawContent_R,nil,'RawContent');
     RegisterPropertyHelper(@TWebRequestContent_R,nil,'Content');
     RegisterPropertyHelper(@TWebRequestConnection_R,nil,'Connection');
     RegisterPropertyHelper(@TWebRequestDerivedFrom_R,nil,'DerivedFrom');

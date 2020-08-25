@@ -4,7 +4,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Projects Include="mod_pascal.dproj">
-            <Dependencies/>
+            <Dependencies>compiler\Source\PascalScript_Core_D25.dproj</Dependencies>
         </Projects>
         <Projects Include="debug\debug.dproj">
             <Dependencies/>
@@ -23,13 +23,13 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="mod_pascal">
+    <Target Name="mod_pascal" DependsOnTargets="PascalScript_Core_D25">
         <MSBuild Projects="mod_pascal.dproj"/>
     </Target>
-    <Target Name="mod_pascal:Clean">
+    <Target Name="mod_pascal:Clean" DependsOnTargets="PascalScript_Core_D25:Clean">
         <MSBuild Projects="mod_pascal.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="mod_pascal:Make">
+    <Target Name="mod_pascal:Make" DependsOnTargets="PascalScript_Core_D25:Make">
         <MSBuild Projects="mod_pascal.dproj" Targets="Make"/>
     </Target>
     <Target Name="debug">

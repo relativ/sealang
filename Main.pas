@@ -111,6 +111,9 @@ begin
   strLine := line;
   while (Pos('var ', LowerCase(strLine)) > 0) do
   begin
+    if Trim(strLine) = 'var' then
+      break;
+
     varStr := copy(strLine, Pos('var ', LowerCase(strLine)), Pos(';', strLine)+ 1);
     Delete(varStr, 1,Pos('var ', LowerCase(varStr)) + 3);
     name := copy(varStr, 0, Pos(':', varStr) -1);
@@ -351,7 +354,7 @@ var
 begin
   DLLHandleList:= TList<UInt64>.Create;
 
-  ExtensionPath := ExtractFilePath(GetModuleName(HInstance));
+  ExtensionPath := ExtractFilePath(GetModuleName(HInstance)) + 'extensions\';
 
   if findfirst(ExtensionPath + '*.dll', faAnyFile, searchResult) = 0 then
   begin

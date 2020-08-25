@@ -21,10 +21,10 @@ type
     fFileName: string;
     fFileData: TMemoryStream;
   protected
-    function GetFieldName: Ansistring; override;
-    function GetFileName: Ansistring; override;
+    function GetFieldName: string; override;
+    function GetFileName: string; override;
     function GetStream: TStream; override;
-    function GetContentType: AnsiString; override;
+    function GetContentType: string; override;
   public
     constructor Create(const Data; dataSize : LongWord; const ContentType, FieldName, FileName : string);
     destructor Destroy;override;
@@ -150,19 +150,19 @@ begin
      inherited;
 end;
 
-function TMultiPartHTTPFile.GetContentType: Ansistring;
+function TMultiPartHTTPFile.GetContentType: string;
 begin
-     Result := AnsiString(Utf8String(fContentType));
+     Result := Utf8String(fContentType);
 end;
 
-function TMultiPartHTTPFile.GetFieldName: Ansistring;
+function TMultiPartHTTPFile.GetFieldName: string;
 begin
-     Result := AnsiString(Utf8String(fFieldName));
+     Result := Utf8String(fFieldName);
 end;
 
-function TMultiPartHTTPFile.GetFileName: Ansistring;
+function TMultiPartHTTPFile.GetFileName: string;
 begin
-     Result := AnsiString(Utf8String(fFileName));
+     Result := Utf8String(fFileName);
 end;
 
 function TMultiPartHTTPFile.GetStream: TStream;
