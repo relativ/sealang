@@ -8,7 +8,7 @@ Begin
 	SQLConnection:= TDBConnection.Create();
 	SQLConnection.ProviderName := 'MySQL'; // Access, Advantage, ASE, DB2, DBF, InterBase, MySQL, NexusDB, ODBC, Oracle, PostgreSQL, SQL Server, SQLite, MongoDB
 	SQLConnection.UserName := 'root';
-	SQLConnection.Password := 'toor';
+	SQLConnection.Password := '';
 	SQLConnection.Server := 'localhost';
 	SQLConnection.Database := 'mysql';
 	SQLConnection.Open();
