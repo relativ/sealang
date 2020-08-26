@@ -44,7 +44,6 @@ type
     procedure Write(s: string);
     procedure Writeln(s: string);
     function ParsePascalCodes(code: string; RunTimeVariables: TDictionary<string, string>; checkVariables: boolean = true): string;
-
     procedure DLLPlugins();
   public
 
@@ -285,6 +284,7 @@ procedure TPascalModule.echo(s:string);
 begin
   Write(s);
 end;
+
 
 procedure TPascalModule.MyOnExecute(Sender: TPSScript);
 begin

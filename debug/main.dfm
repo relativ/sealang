@@ -120,12 +120,12 @@ object Form1: TForm1
   object PSImport_Classes1: TPSImport_Classes
     EnableStreams = True
     EnableClasses = True
-    Left = 472
-    Top = 296
+    Left = 528
+    Top = 288
   end
   object PSImport_DateUtils1: TPSImport_DateUtils
-    Left = 552
-    Top = 280
+    Left = 400
+    Top = 304
   end
   object PSImport_ComObj1: TPSImport_ComObj
     Left = 640

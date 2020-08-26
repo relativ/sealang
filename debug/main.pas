@@ -80,6 +80,7 @@ begin
       if Assigned (method) then
       begin
         plugin := method();
+
         psPluginItem := PSScript.Plugins.Add as TPSPluginItem;
         psPluginItem.Plugin := plugin;
       end;
