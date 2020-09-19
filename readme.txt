@@ -14,3 +14,5 @@ LoadModule pascal_module "${INSTALL_DIR}/bin/pascal.net/mod_pascal.dll"
 </IfModule>
 
 Thats it !
+
+Contact : srkgns@gmail.com
