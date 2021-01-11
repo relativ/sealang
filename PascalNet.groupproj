@@ -21,7 +21,7 @@
         <Projects Include="extensions\Socket\ClientSockets.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="extensions\XML\XML.dproj">
+        <Projects Include="extensions\XML\XML_json.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -86,23 +86,23 @@
     <Target Name="ClientSockets:Make">
         <MSBuild Projects="extensions\Socket\ClientSockets.dproj" Targets="Make"/>
     </Target>
-    <Target Name="XML">
-        <MSBuild Projects="extensions\XML\XML.dproj"/>
+    <Target Name="XML_json">
+        <MSBuild Projects="extensions\XML\XML_json.dproj"/>
     </Target>
-    <Target Name="XML:Clean">
-        <MSBuild Projects="extensions\XML\XML.dproj" Targets="Clean"/>
+    <Target Name="XML_json:Clean">
+        <MSBuild Projects="extensions\XML\XML_json.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="XML:Make">
-        <MSBuild Projects="extensions\XML\XML.dproj" Targets="Make"/>
+    <Target Name="XML_json:Make">
+        <MSBuild Projects="extensions\XML\XML_json.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="mod_pascal;debug;PascalScript_Core_D25;DataAccess;Encryptions;ClientSockets;XML"/>
+        <CallTarget Targets="mod_pascal;debug;PascalScript_Core_D25;DataAccess;Encryptions;ClientSockets;XML_json"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="mod_pascal:Clean;debug:Clean;PascalScript_Core_D25:Clean;DataAccess:Clean;Encryptions:Clean;ClientSockets:Clean;XML:Clean"/>
+        <CallTarget Targets="mod_pascal:Clean;debug:Clean;PascalScript_Core_D25:Clean;DataAccess:Clean;Encryptions:Clean;ClientSockets:Clean;XML_json:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="mod_pascal:Make;debug:Make;PascalScript_Core_D25:Make;DataAccess:Make;Encryptions:Make;ClientSockets:Make;XML:Make"/>
+        <CallTarget Targets="mod_pascal:Make;debug:Make;PascalScript_Core_D25:Make;DataAccess:Make;Encryptions:Make;ClientSockets:Make;XML_json:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
