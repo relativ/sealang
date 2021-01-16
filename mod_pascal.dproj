@@ -108,7 +108,6 @@
         </DelphiCompile>
         <DCCReference Include="Main.pas">
             <Form>PascalModule</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TWebModule</DesignClass>
         </DCCReference>
         <DCCReference Include="utils\uPSI_HTTPApp.pas"/>

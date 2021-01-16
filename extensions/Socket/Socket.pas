@@ -4,7 +4,8 @@ interface
 
 uses SysUtils ,Classes, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdIOHandler, IdGlobal, IdUDPBase,
-  IdUDPClient, IdHTTP, IdMultipartFormData;
+  IdUDPClient, IdHTTP, IdMultipartFormData, IdMessageClient, IdSMTPBase, IdSMTP,
+  IdMessage, IdEMailAddress, IdAttachment, IdAttachmentFile;
 
 type
 
@@ -94,6 +95,16 @@ type
     function Patch(AURL: string; ASource: TStream): string;
     function Get(AURL: string): string;
   end;
+
+  TEmail = class(TObject)
+  private
+
+  public
+     class procedure SendMail(const host, username, password, subject, from: string; port: integer; ato: array of string;
+                          messages: TStringList; attachments: array of string);
+  end;
+
+
 
 
 
@@ -372,6 +383,47 @@ end;
 function THttpClient.Trace(AURL: string): string;
 begin
   Result := IdHTTP.Trace(AURL);
+end;
+
+{ TEmail }
+
+class procedure TEmail.SendMail(const host, username, password, subject, from: string; port: integer; ato: array of string;
+  messages: TStringList; attachments: array of string);
+var
+  SMTP: TIdSMTP;
+  Msg: TIdMessage;
+  I: Integer;
+  eAI: TIdEMailAddressItem;
+begin
+  Msg := TIdMessage.Create(nil);
+  try
+    Msg.From.Address := from;
+    for I := Low(ato) to High(ato) do
+    begin
+      eAI := Msg.Recipients.Add;
+      eAI.Address := ato[I];
+    end;
+    Msg.Body.Text := messages.Text;
+    for I := Low(attachments) to High(attachments) do
+    begin
+      TIdAttachmentFile.Create(Msg.MessageParts, attachments[I]);
+    end;
+    Msg.Subject := subject;
+    SMTP := TIdSMTP.Create(nil);
+    try
+      SMTP.Host := host;
+      SMTP.Port := port;
+      SMTP.AuthType := satDefault;
+      SMTP.Username := username;
+      SMTP.Password := password;
+      SMTP.Connect;
+      SMTP.Send(Msg);
+    finally
+      SMTP.Free;
+    end;
+  finally
+    Msg.Free;
+  end;
 end;
 
 end.

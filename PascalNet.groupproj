@@ -21,7 +21,7 @@
         <Projects Include="extensions\Socket\ClientSockets.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="extensions\XML\XML_json.dproj">
+        <Projects Include="extensions\XML_JSON\XML_json.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -87,13 +87,13 @@
         <MSBuild Projects="extensions\Socket\ClientSockets.dproj" Targets="Make"/>
     </Target>
     <Target Name="XML_json">
-        <MSBuild Projects="extensions\XML\XML_json.dproj"/>
+        <MSBuild Projects="extensions\XML_JSON\XML_json.dproj"/>
     </Target>
     <Target Name="XML_json:Clean">
-        <MSBuild Projects="extensions\XML\XML_json.dproj" Targets="Clean"/>
+        <MSBuild Projects="extensions\XML_JSON\XML_json.dproj" Targets="Clean"/>
     </Target>
     <Target Name="XML_json:Make">
-        <MSBuild Projects="extensions\XML\XML_json.dproj" Targets="Make"/>
+        <MSBuild Projects="extensions\XML_JSON\XML_json.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
         <CallTarget Targets="mod_pascal;debug;PascalScript_Core_D25;DataAccess;Encryptions;ClientSockets;XML_json"/>

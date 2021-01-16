@@ -14,7 +14,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   uPSR_classes, uPSR_controls, uPSR_forms, uPSR_dll, uPSComponent_StdCtrls,
   uPSComponent_Controls, uPSComponent_COM, IdUDPBase, IdUDPClient,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
-  pngimage;
+  pngimage, IdExplicitTLSClientServerBase, IdMessageClient, IdSMTPBase, IdSMTP;
 
 
 type

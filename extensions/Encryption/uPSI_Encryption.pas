@@ -69,6 +69,7 @@ begin
     RegisterMethod('Function EncodeMd5( const value : string) : string');
     RegisterMethod('Function EncodeBase64( const value : string) : string');
     RegisterMethod('Function DecodeBase64( const value : string) : string');
+    RegisterMethod('Function EncodeSha( const value: string; TypeOfSha: integer) : string');
   end;
 end;
 
@@ -87,6 +88,7 @@ begin
     RegisterMethod(@THash.EncodeMd5, 'EncodeMd5');
     RegisterMethod(@THash.EncodeBase64, 'EncodeBase64');
     RegisterMethod(@THash.DecodeBase64, 'DecodeBase64');
+    RegisterMethod(@THash.DecodeBase64, 'EncodeSha');
   end;
 end;
 
