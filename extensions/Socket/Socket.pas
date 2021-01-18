@@ -94,6 +94,7 @@ type
     function Put(AURL: string; ASource: TStream): string;
     function Patch(AURL: string; ASource: TStream): string;
     function Get(AURL: string): string;
+    function GetFile(AURL: string): TStream;
   end;
 
   TEmail = class(TObject)
@@ -328,6 +329,16 @@ end;
 function THttpClient.Get(AURL: string): string;
 begin
   Result := IdHTTP.Get(AURL);
+end;
+
+function THttpClient.GetFile(AURL: string): TStream;
+var
+  ms: TMemoryStream;
+begin
+  ms:= TMemoryStream.Create;
+  ms.Position := 0;
+  IdHTTP.Get(aURL, ms);
+  Result:= ms;
 end;
 
 procedure THttpClient.Head(AURL: string);

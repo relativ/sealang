@@ -97,6 +97,7 @@ begin
     RegisterMethod('Function Put( AURL : string; ASource : TStream) : string');
     RegisterMethod('Function Patch( AURL : string; ASource : TStream) : string');
     RegisterMethod('Function Get( AURL : string) : string');
+    RegisterMethod('Function GetFile(AURL: string): TStream');
   end;
 end;
 
@@ -255,6 +256,7 @@ begin
     RegisterMethod(@THttpClient.Put, 'Put');
     RegisterMethod(@THttpClient.Patch, 'Patch');
     RegisterMethod(@THttpClient.Get, 'Get');
+    RegisterMethod(@THttpClient.GetFile, 'GetFile');
   end;
 end;
 
