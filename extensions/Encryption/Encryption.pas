@@ -14,7 +14,7 @@ type
     class function EncodeMd5(const value: string): string;
     class function EncodeBase64(const value: string): string;
     class function DecodeBase64(const value: string): string;
-    class function EncodeSha(const value: string; TypeOfSha: integer): string;
+    class function EncodeSha2(const value: string; TypeOfSha: integer): string;
   end;
 
 
@@ -50,7 +50,7 @@ begin
   end;
 end;
 
-class function THash.EncodeSha(const value: string; TypeOfSha: integer): string;
+class function THash.EncodeSha2(const value: string; TypeOfSha: integer): string;
 begin
   case TypeOfSha of
     224: Result := THashSHA2.GetHashString(value, THashSHA2.TSHA2Version.SHA224).ToUpper;
