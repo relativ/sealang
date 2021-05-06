@@ -14,7 +14,6 @@ uses
   ,uPSComponent
   ,uPSRuntime
   ,uPSCompiler
-  ,MultipartParser
   ,SessionUnit
   ;
 

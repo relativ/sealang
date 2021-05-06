@@ -7,11 +7,10 @@ uses
   Web.ApacheApp,
   Web.HTTPD24Impl,
   Main in 'Main.pas' {PascalModule: TWebModule},
-  uPSI_HTTPApp in 'utils\uPSI_HTTPApp.pas',
   ExternalFunctions in 'utils\ExternalFunctions.pas',
-  MultipartParser in 'utils\MultipartParser.pas',
   MVCFramework.Session in 'utils\MVCFramework.Session.pas',
-  SessionUnit in 'library\SessionUnit.pas';
+  SessionUnit in 'library\SessionUnit.pas',
+  uPSI_HTTPApp in 'utils\uPSI_HTTPApp.pas';
 
 {$R *.res}
 

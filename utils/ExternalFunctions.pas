@@ -6,7 +6,7 @@ uses
    SysUtils
   ,Classes
   , uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
-  Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp;
+  Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils;
 
 
   function Replace(const S, OldPattern, NewPattern: string): string;

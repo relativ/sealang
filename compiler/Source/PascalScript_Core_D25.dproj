@@ -108,6 +108,8 @@
         <VerInfo_Build>0</VerInfo_Build>
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
         <DCC_DcuOutput>D:\Projeler\pascalnet\Win64\Debug</DCC_DcuOutput>
+        <DCC_BplOutput>D:\Projeler\pascalnet\Win64\Debug</DCC_BplOutput>
+        <DCC_DcpOutput>D:\Projeler\pascalnet\Win64\Debug</DCC_DcpOutput>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

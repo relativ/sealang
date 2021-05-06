@@ -6,10 +6,12 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   Windows, Messages, Graphics, Controls,
   ExtCtrls, StdCtrls, uPSCompiler, uPSRuntime, uPSDisassembly, uPSPreprocessor, uPSUtils,
   Menus, uPSC_comobj, uPSR_comobj, uPSComponent, uPSC_dateutils, uPSI_HTTPApp,
-  MultipartParser, MVCFramework.Session, SessionUnit, uPSComponent_DB,
-  System.Generics.Collections, uPSC_DB, uPSR_DB, uPSComponent_StdCtrls,
-  uPSComponent_Controls, uPSComponent_COM, uPSComponent_Default, Jpeg,
-  pngimage;
+  uPSComponent_StdCtrls, uPSComponent_Controls, uPSComponent_DB,
+  uPSComponent_COM, uPSComponent_Default,
+  MVCFramework.Session, SessionUnit,
+  System.Generics.Collections, uPSC_DB, uPSR_DB,
+  Jpeg,
+  pngimage, ReqMulti;
 
 type
   PPSPascalCompiler = ^ TPSPascalCompiler;
@@ -35,6 +37,7 @@ type
     PluginList: TList<TPSPlugin>;
     RunTimeVariables: TDictionary<string, string>;
     AppPath, MainFileName: string;
+    PSImport_HTTPApp: TPSImport_HTTPApp;
     procedure Compile(Request: TWebRequest; Response: TWebResponse);
     procedure MyOnCompile(Sender: TPSScript);
     procedure OnExecImport(Sender: TObject; se: TPSExec;
@@ -267,6 +270,7 @@ procedure TPascalModule.WebModuleCreate(Sender: TObject);
 begin
   SessionObject := TSession.Create;
   PluginList := TList<TPSPlugin>.Create;
+  PSImport_HTTPApp:= TPSImport_HTTPApp.Create(nil);
   DLLPlugins();
 end;
 
@@ -405,6 +409,7 @@ begin
       (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_DB;
       (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_Controls;
       (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_StdCtrls;
+      (PSScript.Plugins.Add as TPSPluginItem).Plugin := PSImport_HTTPApp;
       for I := 0 to PluginList.Count -1 do
       begin
         (PSScript.Plugins.Add as TPSPluginItem).Plugin := PluginList.Items[I];
@@ -473,7 +478,7 @@ var
 begin
 
   try
-
+    TMultipartContentParser.Create(Request);
     SessionID := GetSessionID(Request, Response);
 
     SessionObject.SetSessionId(SessionID);

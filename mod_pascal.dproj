@@ -110,11 +110,10 @@
             <Form>PascalModule</Form>
             <DesignClass>TWebModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="utils\uPSI_HTTPApp.pas"/>
         <DCCReference Include="utils\ExternalFunctions.pas"/>
-        <DCCReference Include="utils\MultipartParser.pas"/>
         <DCCReference Include="utils\MVCFramework.Session.pas"/>
         <DCCReference Include="library\SessionUnit.pas"/>
+        <DCCReference Include="utils\uPSI_HTTPApp.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -146,9 +145,14 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win64\Debug\mod_pascal.rsm" Configuration="Debug" Class="DebugSymbols"/>
-                <DeployFile LocalName="Win64\Debug\mod_pascal.dll" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="Win32\Debug\mod_pascal.dll" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="Win64\Debug\mod_pascal.dll" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>mod_pascal.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Debug\mod_pascal.dll" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="OSX32">
                         <Operation>1</Operation>
