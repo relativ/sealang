@@ -11,7 +11,8 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   MVCFramework.Session, SessionUnit,
   System.Generics.Collections, uPSC_DB, uPSR_DB,
   Jpeg,
-  pngimage, ReqMulti;
+  pngimage, ReqMulti, IdComponent, IdBaseComponent, IdTCPConnection,
+  IdTCPClient, IdExplicitTLSClientServerBase, IdFTP;
 
 type
   PPSPascalCompiler = ^ TPSPascalCompiler;
@@ -487,7 +488,7 @@ begin
     AppPath := ExtractFilePath(MainFileName);
 
 
-
+    Response.ContentType := 'text/html; charset="UTF-8"';
     Compile(Request, Response);
 
     Response.SendResponse;

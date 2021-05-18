@@ -139,7 +139,6 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\utils\uPSI_HTTPApp.pas"/>
-        <DCCReference Include="..\utils\MultipartParser.pas"/>
         <DCCReference Include="..\library\SessionUnit.pas"/>
         <DCCReference Include="..\utils\MVCFramework.Session.pas"/>
         <BuildConfiguration Include="Release">
