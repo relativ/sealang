@@ -6,7 +6,7 @@ uses SysUtils ,Classes, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdIOHandler, IdGlobal, IdUDPBase,
   IdUDPClient, IdHTTP, IdMultipartFormData, IdMessageClient, IdSMTPBase, IdSMTP,
   IdMessage, IdEMailAddress, IdAttachment, IdAttachmentFile,
-  IdFTP;
+  IdFTP ;
 
 type
 
