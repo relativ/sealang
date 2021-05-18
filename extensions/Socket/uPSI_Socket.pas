@@ -29,6 +29,8 @@ type
 
 
 { compile-time registration functions }
+procedure SIRegister_TFTP(CL: TPSPascalCompiler);
+procedure SIRegister_TEmail(CL: TPSPascalCompiler);
 procedure SIRegister_THttpClient(CL: TPSPascalCompiler);
 procedure SIRegister_TUDPClient(CL: TPSPascalCompiler);
 procedure SIRegister_TTCPClient(CL: TPSPascalCompiler);
@@ -36,6 +38,8 @@ procedure SIRegister_TSocketIOHandler(CL: TPSPascalCompiler);
 procedure SIRegister_Socket(CL: TPSPascalCompiler);
 
 { run-time registration functions }
+procedure RIRegister_TFTP(CL: TPSRuntimeClassImporter);
+procedure RIRegister_TEmail(CL: TPSRuntimeClassImporter);
 procedure RIRegister_THttpClient(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TUDPClient(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TTCPClient(CL: TPSRuntimeClassImporter);
@@ -58,6 +62,14 @@ uses
   ,IdUDPClient
   ,IdHTTP
   ,IdMultipartFormData
+  ,IdMessageClient
+  ,IdSMTPBase
+  ,IdSMTP
+  ,IdMessage
+  ,IdEMailAddress
+  ,IdAttachment
+  ,IdAttachmentFile
+  ,IdFTP
   ,Socket
   ;
 
@@ -72,16 +84,48 @@ end;
 
 (* === compile-time registration functions === *)
 (*----------------------------------------------------------------------------*)
-procedure SIRegister_TEmail(CL: TPSPascalCompiler);
+procedure SIRegister_TFTP(CL: TPSPascalCompiler);
 begin
-  with CL.AddClassN(CL.FindClass('TObject'),'TEmail') do
+  //with RegClassS(CL,'TObject', 'TFTP') do
+  with CL.AddClassN(CL.FindClass('TObject'),'TFTP') do
   begin
-    RegisterMethod('Procedure SendMail(const host, username, password, subject, from: string; '+
-                          ' port: integer; ato: array of string;'+
-                          'messages: TStringList; attachments: array of string)');
+    RegisterMethod('Constructor Create');
+    RegisterMethod('Procedure Abort');
+    RegisterMethod('Procedure ChangeDir( ADirname : string)');
+    RegisterMethod('Procedure ChangeDirUp');
+    RegisterMethod('Procedure Connect');
+    RegisterMethod('Procedure Delete( AFilename : string)');
+    RegisterMethod('Procedure Get( Afilename : string; ADest : TStream)');
+    RegisterMethod('Procedure List');
+    RegisterMethod('Procedure Login');
+    RegisterMethod('Procedure MakeDir( ADirname : string)');
+    RegisterMethod('Procedure Put( AsourceFile : string; ADestFile : string)');
+    RegisterMethod('Procedure PutStream( ASource : TStream; ADeestFile : string)');
+    RegisterMethod('Procedure RemoveDir( ADirname : string)');
+    RegisterMethod('Procedure Rename( AsourceFile : string; AdestFile : string)');
+    RegisterMethod('Function Connected : boolean');
+    RegisterMethod('Procedure Disconnect');
+    RegisterMethod('Function Size( AFilename : string) : integer');
+    RegisterProperty('Host', 'string', iptrw);
+    RegisterProperty('Passive', 'boolean', iptrw);
+    RegisterProperty('Password', 'string', iptrw);
+    RegisterProperty('Username', 'string', iptrw);
+    RegisterProperty('Port', 'integer', iptrw);
+    RegisterProperty('ListResult', 'TStrings', iptr);
   end;
 end;
 
+(*----------------------------------------------------------------------------*)
+procedure SIRegister_TEmail(CL: TPSPascalCompiler);
+begin
+  //with RegClassS(CL,'TObject', 'TEmail') do
+  with CL.AddClassN(CL.FindClass('TObject'),'TEmail') do
+  begin
+    RegisterMethod('Procedure SendMail( const host, username, password, subject, from : string; port : integer; ato : array of string; messages : TStringList; attachments : array of string)');
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
 procedure SIRegister_THttpClient(CL: TPSPascalCompiler);
 begin
   //with RegClassS(CL,'TObject', 'THttpClient') do
@@ -97,7 +141,7 @@ begin
     RegisterMethod('Function Put( AURL : string; ASource : TStream) : string');
     RegisterMethod('Function Patch( AURL : string; ASource : TStream) : string');
     RegisterMethod('Function Get( AURL : string) : string');
-    RegisterMethod('Function GetFile(AURL: string): TStream');
+    RegisterMethod('Function GetFile( AURL : string) : TStream');
   end;
 end;
 
@@ -162,9 +206,54 @@ begin
   SIRegister_TUDPClient(CL);
   SIRegister_THttpClient(CL);
   SIRegister_TEmail(CL);
+  SIRegister_TFTP(CL);
 end;
 
 (* === run-time registration functions === *)
+(*----------------------------------------------------------------------------*)
+procedure TFTPListResult_R(Self: TFTP; var T: TStrings);
+begin T := Self.ListResult; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPPort_W(Self: TFTP; const T: integer);
+begin Self.Port := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPPort_R(Self: TFTP; var T: integer);
+begin T := Self.Port; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPUsername_W(Self: TFTP; const T: string);
+begin Self.Username := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPUsername_R(Self: TFTP; var T: string);
+begin T := Self.Username; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPPassword_W(Self: TFTP; const T: string);
+begin Self.Password := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPPassword_R(Self: TFTP; var T: string);
+begin T := Self.Password; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPPassive_W(Self: TFTP; const T: boolean);
+begin Self.Passive := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPPassive_R(Self: TFTP; var T: boolean);
+begin T := Self.Passive; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPHost_W(Self: TFTP; const T: string);
+begin Self.Host := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPHost_R(Self: TFTP; var T: string);
+begin T := Self.Host; end;
+
 (*----------------------------------------------------------------------------*)
 procedure TUDPClientPort_W(Self: TUDPClient; const T: integer);
 begin Self.Port := T; end;
@@ -234,14 +323,46 @@ procedure TTCPClientBoundIP_R(Self: TTCPClient; var T: string);
 begin T := Self.BoundIP; end;
 
 (*----------------------------------------------------------------------------*)
+procedure RIRegister_TFTP(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TFTP) do
+  begin
+    RegisterConstructor(@TFTP.Create, 'Create');
+    RegisterMethod(@TFTP.Abort, 'Abort');
+    RegisterMethod(@TFTP.ChangeDir, 'ChangeDir');
+    RegisterMethod(@TFTP.ChangeDirUp, 'ChangeDirUp');
+    RegisterMethod(@TFTP.Connect, 'Connect');
+    RegisterMethod(@TFTP.Delete, 'Delete');
+    RegisterMethod(@TFTP.Get, 'Get');
+    RegisterMethod(@TFTP.List, 'List');
+    RegisterMethod(@TFTP.Login, 'Login');
+    RegisterMethod(@TFTP.MakeDir, 'MakeDir');
+    RegisterMethod(@TFTP.Put, 'Put');
+    RegisterMethod(@TFTP.PutStream, 'PutStream');
+    RegisterMethod(@TFTP.RemoveDir, 'RemoveDir');
+    RegisterMethod(@TFTP.Rename, 'Rename');
+    RegisterMethod(@TFTP.Connected, 'Connected');
+    RegisterMethod(@TFTP.Disconnect, 'Disconnect');
+    RegisterMethod(@TFTP.Size, 'Size');
+    RegisterPropertyHelper(@TFTPHost_R,@TFTPHost_W,'Host');
+    RegisterPropertyHelper(@TFTPPassive_R,@TFTPPassive_W,'Passive');
+    RegisterPropertyHelper(@TFTPPassword_R,@TFTPPassword_W,'Password');
+    RegisterPropertyHelper(@TFTPUsername_R,@TFTPUsername_W,'Username');
+    RegisterPropertyHelper(@TFTPPort_R,@TFTPPort_W,'Port');
+    RegisterPropertyHelper(@TFTPListResult_R,nil,'ListResult');
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
 procedure RIRegister_TEmail(CL: TPSRuntimeClassImporter);
 begin
-  with CL.Add(THttpClient) do
+  with CL.Add(TEmail) do
   begin
     RegisterMethod(@TEmail.SendMail, 'SendMail');
   end;
 end;
 
+(*----------------------------------------------------------------------------*)
 procedure RIRegister_THttpClient(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(THttpClient) do
@@ -318,6 +439,7 @@ begin
   RIRegister_TUDPClient(CL);
   RIRegister_THttpClient(CL);
   RIRegister_TEmail(CL);
+  RIRegister_TFTP(CL);
 end;
 
 
