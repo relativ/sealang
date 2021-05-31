@@ -5,11 +5,11 @@ Configuring
 
 Put that lines to apache httpd.conf :
 
-LoadModule pascal_module "${INSTALL_DIR}/bin/pascal.net/mod_pascal.dll" 
+LoadModule sealang_module "${INSTALL_DIR}/bin/sealang/sealang.dll" 
 
 <IfModule mime_module>
     AddType application/x-httpd-pas .pas
-	AddHandler mod_pascal-handler .pas
+	AddHandler sealang-handler .pas
 
 </IfModule>
 
