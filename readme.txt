@@ -1,4 +1,4 @@
-PascalWeb is an opensource application for creating dynamic web pages like as php, nodejs, python.
+Sealang is an opensource application for creating dynamic web pages like as php, nodejs, python.
 
 Configuring
 
