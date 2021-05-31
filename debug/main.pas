@@ -33,15 +33,12 @@ type
     PSImport_StdCtrls1: TPSImport_StdCtrls;
     IdTCPClient1: TIdTCPClient;
     IdUDPClient1: TIdUDPClient;
-    Button1: TButton;
-    Image1: TImage;
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure PSScript1Execute(Sender: TPSScript);
     procedure PSScript1Compile(Sender: TPSScript);
     procedure PSScript1ExecImport(Sender: TObject; const se: TPSExec;
       const x: TPSRuntimeClassImporter);
-    procedure Button1Click(Sender: TObject);
   private
     procedure DLLPlugins(PSScript: TPSScript);
     { Private declarations }
@@ -98,12 +95,6 @@ begin
   DLLPlugins(PSScript1);
  // plugin := TPSImport.Create(nil);
   //(PSScript1.Plugins.Add as TPSPluginItem).Plugin := TPSPlugin(plugin.GetSelf);
-end;
-
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  image1.Picture.LoadFromFile('C:\wamp\www\resim.jpg');
-
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);

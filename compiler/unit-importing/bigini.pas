@@ -1,4 +1,4 @@
-ï»¿{ -------------------------------------------------------------------------- }
+{ -------------------------------------------------------------------------- }
 { BigIni.PAS                                                   eh 2002-04-14 }
 { Version 4.11                                                               }
 {    Delphi 3/4/5 version                                                    }
@@ -85,7 +85,7 @@
 {      to handle case insensitive search in languages with special chars;    }
 {      some efforts to increase speed                                        }
 {      * new web and e-mail address *                                        }
-{ 2.01 implemented modifications/suggestions from Gyula Mï¿½szï¿½ros,            }
+{ 2.01 implemented modifications/suggestions from Gyula Mészáros,            }
 {      Budapest, Hungary - 100263.1465@compuserve.com                        }
 {procedure TIniFile.ReadSections(aStrings: TStrings);                        }
 {    - The extra 16K file buffer is removeable                               }
@@ -222,7 +222,7 @@ It's a descendant of TStringList with "enhanced" IndexOf function (and others)
     constructor Create;
     function    EraseDuplicates(callBackProc:TEraseSectionCallback) : Boolean;
     function    GetSectionItems(index: Integer): TStringList;
-    function    IndexOf(const S: AnsiString): Integer; //override;
+    function    IndexOf(const S: AnsiString): Integer; override;
     function    IndexOfName(const name: string): Integer; //override;
     property    SectionItems[index: Integer]: TStringList Read GetSectionItems;
   end;

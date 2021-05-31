@@ -70,7 +70,6 @@ uses
   ,IdAttachment
   ,IdAttachmentFile
   ,IdFTP
-  ,IdFTPCommon
   ,Socket
   ;
  
@@ -101,7 +100,6 @@ begin
     RegisterMethod('Procedure PutStream( ASource : TStream; ADeestFile : string)');
     RegisterMethod('Procedure RemoveDir( ADirname : string)');
     RegisterMethod('Procedure Rename( AsourceFile : string; AdestFile : string)');
-    RegisterMethod('Procedure Status( AStatus : TStrings)');
     RegisterMethod('Function Connected : boolean');
     RegisterMethod('Procedure Disconnect');
     RegisterMethod('Function Size( AFilename : string) : integer');
@@ -111,7 +109,6 @@ begin
     RegisterProperty('Username', 'string', iptrw);
     RegisterProperty('Port', 'integer', iptrw);
     RegisterProperty('ListResult', 'TStrings', iptr);
-    RegisterProperty('OnStatus', 'TOnStatusEvent', iptrw);
   end;
 end;
 
@@ -206,20 +203,10 @@ begin
   SIRegister_TUDPClient(CL);
   SIRegister_THttpClient(CL);
   SIRegister_TEmail(CL);
-  CL.AddTypeS('TOnStatusEvent', 'Procedure ( ASender : TObject; const AStatusTe'
-   +'xt : string)');
   SIRegister_TFTP(CL);
 end;
 
 (* === run-time registration functions === *)
-(*----------------------------------------------------------------------------*)
-procedure TFTPOnStatus_W(Self: TFTP; const T: TOnStatusEvent);
-begin Self.OnStatus := T; end;
-
-(*----------------------------------------------------------------------------*)
-procedure TFTPOnStatus_R(Self: TFTP; var T: TOnStatusEvent);
-begin T := Self.OnStatus; end;
-
 (*----------------------------------------------------------------------------*)
 procedure TFTPListResult_R(Self: TFTP; var T: TStrings);
 begin T := Self.ListResult; end;
@@ -351,7 +338,6 @@ begin
     RegisterMethod(@TFTP.PutStream, 'PutStream');
     RegisterMethod(@TFTP.RemoveDir, 'RemoveDir');
     RegisterMethod(@TFTP.Rename, 'Rename');
-    RegisterMethod(@TFTP.Status, 'Status');
     RegisterMethod(@TFTP.Connected, 'Connected');
     RegisterMethod(@TFTP.Disconnect, 'Disconnect');
     RegisterMethod(@TFTP.Size, 'Size');
@@ -361,7 +347,6 @@ begin
     RegisterPropertyHelper(@TFTPUsername_R,@TFTPUsername_W,'Username');
     RegisterPropertyHelper(@TFTPPort_R,@TFTPPort_W,'Port');
     RegisterPropertyHelper(@TFTPListResult_R,nil,'ListResult');
-    RegisterPropertyHelper(@TFTPOnStatus_R,@TFTPOnStatus_W,'OnStatus');
   end;
 end;
 

@@ -261,12 +261,9 @@ end;
 
 procedure SIRegisterTPicture(CL: TPSPascalCompiler);
 begin
-  with CL.AddClassN(CL.FindClass('TInterfacedPersistent'),'TPicture') do
+  with CL.AddClassN(CL.FindClass('TPersistent'),'TPicture') do
   begin
-    RegisterMethod('procedure LoadFromFile(const FileName: string)');
-    RegisterMethod('procedure SaveToFile(const FileName: string)');
     RegisterProperty('Bitmap','TBitmap',iptrw);
-    RegisterProperty('Graphic','TGraphic',iptrw);
   end;
 end;
 

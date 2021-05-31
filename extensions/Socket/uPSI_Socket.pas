@@ -209,8 +209,7 @@ begin
   SIRegister_TUDPClient(CL);
   SIRegister_THttpClient(CL);
   SIRegister_TEmail(CL);
-  CL.AddTypeS('TOnStatusEvent', 'Procedure ( ASender : TObject; const AStatusTe'
-   +'xt : string)');
+  CL.AddTypeS('TOnStatusEvent', 'Procedure ( ASender : TObject; AStatusText : string)');
   SIRegister_TFTP(CL);
 end;
 

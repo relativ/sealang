@@ -5,9 +5,9 @@
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <ProjectVersion>18.4</ProjectVersion>
+        <ProjectVersion>19.0</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <AppType>Package</AppType>
         <TargetedPlatforms>3</TargetedPlatforms>
     </PropertyGroup>
@@ -34,6 +34,12 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
         <Cfg_1_Win64>true</Cfg_1_Win64>
         <CfgParent>Cfg_1</CfgParent>
@@ -43,6 +49,12 @@
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
@@ -89,7 +101,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_BplOutput>..\Dcu\D25\win64</DCC_BplOutput>
-        <DCC_UnitSearchPath>D:\Projeler\pascalnet\Win64\Debug;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\Dcu\D25\win64;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_DcpOutput>..\Dcu\D25\win64</DCC_DcpOutput>
         <DCC_DcuOutput>..\Dcu\D25\win64</DCC_DcuOutput>
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
@@ -102,29 +114,28 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <DCC_DcpOutput>D:\Projeler\PidginJS\Win32\Debug\</DCC_DcpOutput>
+        <DCC_BplOutput>D:\Projeler\PidginJS\Win32\Debug\</DCC_BplOutput>
+        <DCC_UnitSearchPath>D:\Projeler\PidginJS\compiler;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_Release>0</VerInfo_Release>
         <VerInfo_Build>0</VerInfo_Build>
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <DCC_BplOutput>D:\Projeler\pascalnet\Win64\Release</DCC_BplOutput>
-        <DCC_UnitSearchPath>D:\Projeler\pascalnet\Win64\Release</DCC_UnitSearchPath>
-        <DCC_DcpOutput>D:\Projeler\pascalnet\Win64\Release</DCC_DcpOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_DcpOutput>D:\Projeler\PidginJS\Win32\Debug\</DCC_DcpOutput>
+        <DCC_BplOutput>D:\Projeler\PidginJS\Win32\Debug\</DCC_BplOutput>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_MajorVer>1</VerInfo_MajorVer>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Build>0</VerInfo_Build>
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
-        <DCC_DcuOutput>D:\Projeler\pascalnet\Win64\Debug</DCC_DcuOutput>
-        <DCC_BplOutput>D:\Projeler\pascalnet\Win64\Debug</DCC_BplOutput>
-        <DCC_DcpOutput>D:\Projeler\pascalnet\Win64\Debug</DCC_DcpOutput>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -224,6 +235,7 @@
                     <VersionInfoKeys Name="CompileDate">Friday, March 21, 2008 1:24 PM</VersionInfoKeys>
                 </VersionInfoKeys>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="D:\Projeler\pascalnet\compiler\Dcu\D25\win32\PascalScript_Core_D25.bpl">File D:\Projeler\pascalnet\compiler\Dcu\D25\win32\PascalScript_Core_D25.bpl not found</Excluded_Packages>
                     <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\19.0\Bpl\CEF4Delphi_FMX.bpl">CEF4Delphi</Excluded_Packages>
                     <Excluded_Packages Name="D:\Projeler\PidginJS\Win32\Debug\paxcomp_xe7.bpl">(untitled)</Excluded_Packages>
                     <Excluded_Packages Name="D:\Projeler\PascalDHTML\Win32\Debug\PascalScript_Core_D26.bpl">File D:\Projeler\PascalDHTML\Win32\Debug\PascalScript_Core_D26.bpl not found</Excluded_Packages>
@@ -235,7 +247,6 @@
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Android">False</Platform>
-                <Platform value="iOSDevice32">False</Platform>
                 <Platform value="iOSSimulator">False</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>

@@ -107,8 +107,7 @@ type
   end;
 
 
-  TOnStatusEvent = procedure(ASender: TObject;
-   const AStatusText: string) of object;
+  TOnStatusEvent = procedure(ASender: TObject; AStatusText: string) of object;
 
 
 
@@ -523,7 +522,8 @@ end;
 procedure TFTP.OnStatusEvent(ASender: TObject; const AStatus: TIdStatus;
    const AStatusText: string);
 begin
-  FOnFTPStatus(Self, AStatusText);
+  if Assigned(FOnFTPStatus) then
+    FOnFTPStatus(Self, AStatusText);
 end;
 
 constructor TFTP.Create;

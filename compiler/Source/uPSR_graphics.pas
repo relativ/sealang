@@ -21,7 +21,7 @@ procedure RIRegister_Graphics(Cl: TPSRuntimeClassImporter; Streams: Boolean);
 implementation
 {$IFNDEF FPC}
 uses
-  Classes{$IFDEF CLX}, QGraphics{$ELSE}, Windows, Graphics{$ENDIF};
+  Classes{$IFDEF CLX}, QGraphics{$ELSE}, Windows, Graphics{$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, UITypes {$ENDIF};
 {$ELSE}
 uses
   Classes, Graphics,LCLType;
@@ -218,17 +218,10 @@ end;
 
 procedure TPictureBitmap_W(Self: TPicture; const T: TBitmap); begin Self.Bitmap := T; end;
 procedure TPictureBitmap_R(Self: TPicture; var T: TBitmap); begin T := Self.Bitmap; end;
-procedure TPictureGraphic_W(Self: TPicture; const T: TGraphic); begin Self.Graphic := T; end;
-procedure TPictureGraphic_R(Self: TPicture; var T: TGraphic); begin T := Self.Graphic; end;
 procedure RIRegisterTPicture(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TPicture) do
-  begin
     registerPropertyHelper(@TPictureBitmap_R,@TPictureBitmap_W,'Bitmap');
-    registerPropertyHelper(@TPictureGraphic_R,@TPictureGraphic_W,'Graphic');
-    RegisterMethod(@TPicture.LoadFromFile, 'LoadFromFile');
-    RegisterMethod(@TPicture.SaveToFile, 'SaveToFile');
-  end;
 end;
 
 procedure RIRegister_Graphics(Cl: TPSRuntimeClassImporter; Streams: Boolean);

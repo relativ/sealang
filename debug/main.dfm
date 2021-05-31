@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 475
-  ClientWidth = 777
+  ClientHeight = 484
+  ClientWidth = 761
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,15 +11,10 @@ object Form1: TForm1
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesigned
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object Image1: TImage
-    Left = 664
-    Top = 216
-    Width = 105
-    Height = 105
-  end
   object Memo1: TMemo
     Left = 8
     Top = 8
@@ -65,22 +60,13 @@ object Form1: TForm1
     TabOrder = 0
   end
   object Button2: TButton
-    Left = 672
+    Left = 678
     Top = 23
     Width = 75
     Height = 25
     Caption = 'Button2'
     TabOrder = 1
     OnClick = Button2Click
-  end
-  object Button1: TButton
-    Left = 672
-    Top = 95
-    Width = 75
-    Height = 25
-    Caption = 'Button2'
-    TabOrder = 2
-    OnClick = Button1Click
   end
   object PSScript1: TPSScript
     CompilerOptions = []

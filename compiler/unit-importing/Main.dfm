@@ -1,9 +1,9 @@
 object frmMain: TfrmMain
   Left = 269
   Top = 246
+  Width = 696
+  Height = 551
   Caption = 'Import Files'
-  ClientHeight = 492
-  ClientWidth = 680
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,28 +19,27 @@ object frmMain: TfrmMain
   TextHeight = 16
   object Splitter1: TSplitter
     Left = 0
-    Top = 388
-    Width = 680
+    Top = 382
+    Width = 688
     Height = 4
     Cursor = crVSplit
     Align = alBottom
-    ExplicitTop = 382
-    ExplicitWidth = 688
   end
   object lboMessages: TListBox
     Left = 0
-    Top = 392
-    Width = 680
+    Top = 386
+    Width = 688
     Height = 81
     Align = alBottom
+    ItemHeight = 16
     TabOrder = 0
     OnDblClick = lboMessagesDblClick
   end
   object TabControl1: TTabControl
     Left = 0
     Top = 29
-    Width = 680
-    Height = 359
+    Width = 688
+    Height = 353
     Align = alClient
     Style = tsFlatButtons
     TabOrder = 1
@@ -52,8 +51,8 @@ object frmMain: TfrmMain
     object Editor: TSynEdit
       Left = 4
       Top = 30
-      Width = 672
-      Height = 325
+      Width = 680
+      Height = 319
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -64,14 +63,6 @@ object frmMain: TfrmMain
       OnClick = EditorClick
       OnKeyDown = EditorKeyDown
       OnKeyUp = EditorKeyUp
-      CodeFolding.GutterShapeSize = 11
-      CodeFolding.CollapsedLineColor = clGrayText
-      CodeFolding.FolderBarLinesColor = clGrayText
-      CodeFolding.IndentGuidesColor = clGray
-      CodeFolding.IndentGuides = True
-      CodeFolding.ShowCollapsedLine = False
-      CodeFolding.ShowHintMark = True
-      UseCodeFolding = False
       Gutter.DigitCount = 2
       Gutter.Font.Charset = DEFAULT_CHARSET
       Gutter.Font.Color = clWindowText
@@ -88,7 +79,6 @@ object frmMain: TfrmMain
       OnChange = EditorChange
       OnDropFiles = EditorDropFiles
       OnScroll = EditorScroll
-      FontSmoothing = fsmNone
       RemovedKeystrokes = <
         item
           Command = ecContextHelp
@@ -104,12 +94,13 @@ object frmMain: TfrmMain
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 680
+    Width = 688
     Height = 29
     ButtonHeight = 24
     ButtonWidth = 25
     Caption = 'ToolBar1'
     EdgeBorders = [ebBottom]
+    Flat = True
     Images = ImageList1
     TabOrder = 2
     object ToolButton1: TToolButton
@@ -193,8 +184,8 @@ object frmMain: TfrmMain
   end
   object stbMain: TStatusBar
     Left = 0
-    Top = 473
-    Width = 680
+    Top = 467
+    Width = 688
     Height = 19
     Panels = <
       item
@@ -210,9 +201,6 @@ object frmMain: TfrmMain
     Top = 65532
   end
   object pashighlighter: TSynPasSyn
-    Options.AutoDetectEnabled = False
-    Options.AutoDetectLineLimit = 0
-    Options.Visible = False
     Left = 480
   end
   object mnuMain: TMainMenu
@@ -301,7 +289,7 @@ object frmMain: TfrmMain
     Left = 380
     Top = 65531
     Bitmap = {
-      494C010108000900080012001200FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010108000900040012001200FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000048000000360000000100200000000000C03C
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

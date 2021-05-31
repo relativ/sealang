@@ -44,26 +44,7 @@ implementation
 
 
 uses
-   DB
-  ,DBAccess
-  ,Uni
-  ,MemDS
-  ,MongoDBUniProvider
-  ,SQLiteUniProvider
-  ,SQLServerUniProvider
-  ,PostgreSQLUniProvider
-  ,OracleUniProvider
-  ,NexusDBUniProvider
-  ,MySQLUniProvider
-  ,InterBaseUniProvider
-  ,DBFUniProvider
-  ,DB2UniProvider
-  ,ASEUniProvider
-  ,AdvantageUniProvider
-  ,UniProvider
-  ,ODBCUniProvider
-  ,AccessUniProvider
-  ,SQLConnection
+   SQLConnection
   ;
  
  
@@ -89,6 +70,7 @@ begin
     RegisterMethod('Procedure Append');
     RegisterMethod('Procedure Edit');
     RegisterMethod('Procedure Post');
+    RegisterMethod('Procedure ExecSQL');
     RegisterMethod('Function Eof : boolean');
     RegisterMethod('Function FieldByNameAsBoolean( FieldName : string) : Boolean');
     RegisterMethod('Function FieldByNameAsDateTime( FieldName : string) : TDateTime');
@@ -97,9 +79,6 @@ begin
     RegisterMethod('Function FieldByNameAsString( FieldName : string) : String');
     RegisterProperty('Active', 'boolean', iptrw);
     RegisterProperty('SQL', 'TStrings', iptr);
-    RegisterProperty('SQLDelete', 'TStrings', iptr);
-    RegisterProperty('SQLInsert', 'TStrings', iptr);
-    RegisterProperty('SQLUpdate', 'TStrings', iptr);
     RegisterProperty('Connection', 'TSQLConnection', iptrw);
   end;
 end;
@@ -117,8 +96,10 @@ begin
     RegisterProperty('UserName', 'string', iptrw);
     RegisterProperty('Password', 'string', iptrw);
     RegisterProperty('Server', 'string', iptrw);
+    RegisterProperty('Port', 'integer', iptrw);
     RegisterProperty('Database', 'string', iptrw);
     RegisterProperty('Connected', 'boolean', iptrw);
+    RegisterProperty('Params', 'TStringList', iptr);
   end;
 end;
 
@@ -139,18 +120,6 @@ procedure TSQLQueryConnection_R(Self: TSQLQuery; var T: TSQLConnection);
 begin T := Self.Connection; end;
 
 (*----------------------------------------------------------------------------*)
-procedure TSQLQuerySQLUpdate_R(Self: TSQLQuery; var T: TStrings);
-begin T := Self.SQLUpdate; end;
-
-(*----------------------------------------------------------------------------*)
-procedure TSQLQuerySQLInsert_R(Self: TSQLQuery; var T: TStrings);
-begin T := Self.SQLInsert; end;
-
-(*----------------------------------------------------------------------------*)
-procedure TSQLQuerySQLDelete_R(Self: TSQLQuery; var T: TStrings);
-begin T := Self.SQLDelete; end;
-
-(*----------------------------------------------------------------------------*)
 procedure TSQLQuerySQL_R(Self: TSQLQuery; var T: TStrings);
 begin T := Self.SQL; end;
 
@@ -161,6 +130,10 @@ begin Self.Active := T; end;
 (*----------------------------------------------------------------------------*)
 procedure TSQLQueryActive_R(Self: TSQLQuery; var T: boolean);
 begin T := Self.Active; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSQLConnectionParams_R(Self: TSQLConnection; var T: TStringList);
+begin T := Self.Params; end;
 
 (*----------------------------------------------------------------------------*)
 procedure TSQLConnectionConnected_W(Self: TSQLConnection; const T: boolean);
@@ -177,6 +150,14 @@ begin Self.Database := T; end;
 (*----------------------------------------------------------------------------*)
 procedure TSQLConnectionDatabase_R(Self: TSQLConnection; var T: string);
 begin T := Self.Database; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSQLConnectionPort_W(Self: TSQLConnection; const T: integer);
+begin Self.Port := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSQLConnectionPort_R(Self: TSQLConnection; var T: integer);
+begin T := Self.Port; end;
 
 (*----------------------------------------------------------------------------*)
 procedure TSQLConnectionServer_W(Self: TSQLConnection; const T: string);
@@ -225,6 +206,7 @@ begin
     RegisterMethod(@TSQLQuery.Append, 'Append');
     RegisterMethod(@TSQLQuery.Edit, 'Edit');
     RegisterMethod(@TSQLQuery.Post, 'Post');
+    RegisterMethod(@TSQLQuery.ExecSQL, 'ExecSQL');
     RegisterMethod(@TSQLQuery.Eof, 'Eof');
     RegisterMethod(@TSQLQuery.FieldByNameAsBoolean, 'FieldByNameAsBoolean');
     RegisterMethod(@TSQLQuery.FieldByNameAsDateTime, 'FieldByNameAsDateTime');
@@ -233,9 +215,6 @@ begin
     RegisterMethod(@TSQLQuery.FieldByNameAsString, 'FieldByNameAsString');
     RegisterPropertyHelper(@TSQLQueryActive_R,@TSQLQueryActive_W,'Active');
     RegisterPropertyHelper(@TSQLQuerySQL_R,nil,'SQL');
-    RegisterPropertyHelper(@TSQLQuerySQLDelete_R,nil,'SQLDelete');
-    RegisterPropertyHelper(@TSQLQuerySQLInsert_R,nil,'SQLInsert');
-    RegisterPropertyHelper(@TSQLQuerySQLUpdate_R,nil,'SQLUpdate');
     RegisterPropertyHelper(@TSQLQueryConnection_R,@TSQLQueryConnection_W,'Connection');
   end;
 end;
@@ -252,8 +231,10 @@ begin
     RegisterPropertyHelper(@TSQLConnectionUserName_R,@TSQLConnectionUserName_W,'UserName');
     RegisterPropertyHelper(@TSQLConnectionPassword_R,@TSQLConnectionPassword_W,'Password');
     RegisterPropertyHelper(@TSQLConnectionServer_R,@TSQLConnectionServer_W,'Server');
+    RegisterPropertyHelper(@TSQLConnectionPort_R,@TSQLConnectionPort_W,'Port');
     RegisterPropertyHelper(@TSQLConnectionDatabase_R,@TSQLConnectionDatabase_W,'Database');
     RegisterPropertyHelper(@TSQLConnectionConnected_R,@TSQLConnectionConnected_W,'Connected');
+    RegisterPropertyHelper(@TSQLConnectionParams_R,nil,'Params');
   end;
 end;
 
