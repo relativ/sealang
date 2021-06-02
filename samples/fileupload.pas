@@ -5,18 +5,17 @@ var
   strLine, tmpStr: string;
   i: integer;
   MS: TMemoryStream;
+
 Begin
-	if Request.QueryFields.Values['upload'] <> 'true' then
+
+	if Request.QueryFields.Values['upload'] = 'true' then
 	begin
-		strLine := 'merhaba<pas writeln("dünya"); ? > alooo';
-		tmpStr := copy(strLine, Pos('<pas',strLine) + 4, Length(strLine));
-		Delete(tmpStr, 1, Pos('? >',tmpStr) + 2 );
-		echo(tmpStr);
-		Response.Content := Request.PathTranslated;
-	end else begin
-		
+
+
+		echo (IntToStr(Request.Files.Count));
 		for i := 0 to Request.Files.Count -1 do
 		begin
+			echo (Request.Files.Items[i].FileName + '<br/>');
 			MS:= TMemoryStream.Create();
 			MS.LoadFromStream(Request.Files.Items[i].Stream);
 			MS.SaveToFile('C:\wamp64\www\' + Request.Files.Items[i].FileName);
@@ -28,7 +27,7 @@ Begin
 	
 ?>
 	<div style="background-color:red">
-		<form action="test.pas?upload=true" method="post" enctype="multipart/form-data">
+		<form action="fileupload.pas?upload=true" method="post" enctype="multipart/form-data">
 			<input type="file" name="dosya" />
 			<input type="submit" value="submit" />
 		</form>
