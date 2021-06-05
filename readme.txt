@@ -1,4 +1,4 @@
-Sealang is an opensource event based software language for creating dynamic web pages like as php, nodejs, python.
+Sealang is an opensource software language for creating dynamic web pages like as php, nodejs, python.
 
 Configuring
 
