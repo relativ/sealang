@@ -14,7 +14,8 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   uPSR_classes, uPSR_controls, uPSR_forms, uPSR_dll, uPSComponent_StdCtrls,
   uPSComponent_Controls, uPSComponent_COM, IdUDPBase, IdUDPClient,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
-  pngimage, IdExplicitTLSClientServerBase, IdMessageClient, IdSMTPBase, IdSMTP;
+  pngimage, IdExplicitTLSClientServerBase, IdMessageClient, IdSMTPBase, IdSMTP,
+  IdFTP;
 
 
 type
@@ -31,8 +32,7 @@ type
     PSImport_DB1: TPSImport_DB;
     PSImport_Controls1: TPSImport_Controls;
     PSImport_StdCtrls1: TPSImport_StdCtrls;
-    IdTCPClient1: TIdTCPClient;
-    IdUDPClient1: TIdUDPClient;
+    IdFTP1: TIdFTP;
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure PSScript1Execute(Sender: TPSScript);
@@ -154,6 +154,8 @@ end;
 procedure TForm1.PSScript1Execute(Sender: TPSScript);
 begin
   Sender.SetVarToInstance('MEMO1', Memo1);
+
+
 end;
 
 end.

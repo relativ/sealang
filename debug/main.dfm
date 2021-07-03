@@ -60,7 +60,7 @@ object Form1: TForm1
     TabOrder = 0
   end
   object Button2: TButton
-    Left = 678
+    Left = 662
     Top = 23
     Width = 75
     Height = 25
@@ -96,8 +96,8 @@ object Form1: TForm1
         Plugin = PSImport_DB1
       end>
     UsePreProcessor = False
-    Left = 688
-    Top = 144
+    Left = 648
+    Top = 176
   end
   object PSDllPlugin1: TPSDllPlugin
     Left = 384
@@ -132,19 +132,17 @@ object Form1: TForm1
     EnableExtCtrls = True
     EnableButtons = True
     Left = 640
-    Top = 224
+    Top = 232
   end
-  object IdTCPClient1: TIdTCPClient
-    ConnectTimeout = 0
+  object IdFTP1: TIdFTP
     IPVersion = Id_IPv4
-    Port = 0
-    ReadTimeout = -1
-    Left = 696
-    Top = 368
-  end
-  object IdUDPClient1: TIdUDPClient
-    Port = 0
-    Left = 608
-    Top = 376
+    ConnectTimeout = 0
+    NATKeepAlive.UseKeepAlive = False
+    NATKeepAlive.IdleTimeMS = 0
+    NATKeepAlive.IntervalMS = 0
+    ProxySettings.ProxyType = fpcmNone
+    ProxySettings.Port = 0
+    Left = 536
+    Top = 384
   end
 end

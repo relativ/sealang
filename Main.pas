@@ -49,6 +49,7 @@ type
     procedure Writeln(s: string);
     function ParsePascalCodes(code: string; RunTimeVariables: TDictionary<string, string>; checkVariables: boolean = true): string;
     procedure DLLPlugins();
+    procedure WriteBuffer(b: TStream; ContentType: string);
   public
 
   end;
@@ -280,6 +281,13 @@ begin
   Response.Content := Response.Content + s;
 end;
 
+procedure TPascalModule.WriteBuffer(b: TStream; ContentType: string);
+begin
+  Response.ContentType := ContentType;
+  b.Position := 0;
+  Response.ContentStream := b;
+end;
+
 procedure TPascalModule.Writeln(s: string);
 begin
   Write(s+ #13#10);
@@ -309,6 +317,7 @@ begin
   Sender.AddMethod(self, @TPascalModule.Writeln, 'procedure Writeln(s: string)');
   Sender.AddMethod(self, @TPascalModule.Write, 'procedure Write(s: string)');
   Sender.AddMethod(self, @TPascalModule.echo, 'procedure echo(s: string)');
+  Sender.AddMethod(self, @TPascalModule.WriteBuffer, 'procedure WriteBuffer(b: TStream)');
 
   ImplementFucntions(Sender);
 
