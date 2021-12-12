@@ -15,7 +15,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   uPSComponent_Controls, uPSComponent_COM, IdUDPBase, IdUDPClient,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
   pngimage, IdExplicitTLSClientServerBase, IdMessageClient, IdSMTPBase, IdSMTP,
-  IdFTP;
+  IdFTP, dialogs;
 
 
 type
@@ -32,7 +32,7 @@ type
     PSImport_DB1: TPSImport_DB;
     PSImport_Controls1: TPSImport_Controls;
     PSImport_StdCtrls1: TPSImport_StdCtrls;
-    IdFTP1: TIdFTP;
+    Button1: TButton;
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure PSScript1Execute(Sender: TPSScript);
@@ -104,11 +104,11 @@ var
   mainFileName: string;
   i: integer;
 
-
   procedure Outputtxt(const s: string);
   begin
     Memo1.Lines.Add(s);
   end;
+
 
 begin
   try
@@ -118,6 +118,7 @@ begin
       PSScript1.Comp.AllowNoEnd := true;
       PSScript1.Comp.AllowNoBegin := true;
       PSScript1.Comp.AllowUnit := true;
+
       if PSScript1.Compile() then
       begin
         PSScript1.Execute();

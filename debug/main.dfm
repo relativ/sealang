@@ -68,6 +68,14 @@ object Form1: TForm1
     TabOrder = 1
     OnClick = Button2Click
   end
+  object Button1: TButton
+    Left = 662
+    Top = 96
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 2
+  end
   object PSScript1: TPSScript
     CompilerOptions = []
     OnCompile = PSScript1Compile
@@ -133,16 +141,5 @@ object Form1: TForm1
     EnableButtons = True
     Left = 640
     Top = 232
-  end
-  object IdFTP1: TIdFTP
-    IPVersion = Id_IPv4
-    ConnectTimeout = 0
-    NATKeepAlive.UseKeepAlive = False
-    NATKeepAlive.IdleTimeMS = 0
-    NATKeepAlive.IntervalMS = 0
-    ProxySettings.ProxyType = fpcmNone
-    ProxySettings.Port = 0
-    Left = 536
-    Top = 384
   end
 end

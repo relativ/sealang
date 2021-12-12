@@ -16,7 +16,7 @@ procedure RIRegister_Forms(Cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  sysutils, classes, {$IFDEF CLX}QControls, QForms, QGraphics{$ELSE}Controls, Forms, Graphics{$ENDIF};
+  sysutils, classes, {$IFDEF CLX}QControls, QForms, QGraphics{$ELSE}Vcl.Controls, Vcl.Forms, Vcl.Graphics{$ENDIF};
 
 procedure TCONTROLSCROLLBARKIND_R(Self: TCONTROLSCROLLBAR; var T: TSCROLLBARKIND); begin T := Self.KIND; end;
 procedure TCONTROLSCROLLBARSCROLLPOS_R(Self: TCONTROLSCROLLBAR; var T: INTEGER); begin t := Self.SCROLLPOS; end;

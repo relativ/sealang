@@ -12,13 +12,13 @@
         <Projects Include="compiler\Source\PascalScript_Core_D25.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="extensions\DB\DataAccess.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="extensions\Encryption\Encryptions.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="extensions\Socket\ClientSockets.dproj">
+        <Projects Include="extensions\DB\DataAccess.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="extensions\Socket\Sockets.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="extensions\XML_JSON\XML_json.dproj">
@@ -59,15 +59,6 @@
     <Target Name="PascalScript_Core_D25:Make">
         <MSBuild Projects="compiler\Source\PascalScript_Core_D25.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DataAccess">
-        <MSBuild Projects="extensions\DB\DataAccess.dproj"/>
-    </Target>
-    <Target Name="DataAccess:Clean">
-        <MSBuild Projects="extensions\DB\DataAccess.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="DataAccess:Make">
-        <MSBuild Projects="extensions\DB\DataAccess.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Encryptions">
         <MSBuild Projects="extensions\Encryption\Encryptions.dproj"/>
     </Target>
@@ -77,14 +68,23 @@
     <Target Name="Encryptions:Make">
         <MSBuild Projects="extensions\Encryption\Encryptions.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ClientSockets">
-        <MSBuild Projects="extensions\Socket\ClientSockets.dproj"/>
+    <Target Name="DataAccess">
+        <MSBuild Projects="extensions\DB\DataAccess.dproj"/>
     </Target>
-    <Target Name="ClientSockets:Clean">
-        <MSBuild Projects="extensions\Socket\ClientSockets.dproj" Targets="Clean"/>
+    <Target Name="DataAccess:Clean">
+        <MSBuild Projects="extensions\DB\DataAccess.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ClientSockets:Make">
-        <MSBuild Projects="extensions\Socket\ClientSockets.dproj" Targets="Make"/>
+    <Target Name="DataAccess:Make">
+        <MSBuild Projects="extensions\DB\DataAccess.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Sockets">
+        <MSBuild Projects="extensions\Socket\Sockets.dproj"/>
+    </Target>
+    <Target Name="Sockets:Clean">
+        <MSBuild Projects="extensions\Socket\Sockets.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Sockets:Make">
+        <MSBuild Projects="extensions\Socket\Sockets.dproj" Targets="Make"/>
     </Target>
     <Target Name="XML_json">
         <MSBuild Projects="extensions\XML_JSON\XML_json.dproj"/>
@@ -96,13 +96,13 @@
         <MSBuild Projects="extensions\XML_JSON\XML_json.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="sealang;debug;PascalScript_Core_D25;DataAccess;Encryptions;ClientSockets;XML_json"/>
+        <CallTarget Targets="sealang;debug;PascalScript_Core_D25;Encryptions;DataAccess;Sockets;XML_json"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="sealang:Clean;debug:Clean;PascalScript_Core_D25:Clean;DataAccess:Clean;Encryptions:Clean;ClientSockets:Clean;XML_json:Clean"/>
+        <CallTarget Targets="sealang:Clean;debug:Clean;PascalScript_Core_D25:Clean;Encryptions:Clean;DataAccess:Clean;Sockets:Clean;XML_json:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="sealang:Make;debug:Make;PascalScript_Core_D25:Make;DataAccess:Make;Encryptions:Make;ClientSockets:Make;XML_json:Make"/>
+        <CallTarget Targets="sealang:Make;debug:Make;PascalScript_Core_D25:Make;Encryptions:Make;DataAccess:Make;Sockets:Make;XML_json:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

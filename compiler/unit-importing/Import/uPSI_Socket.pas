@@ -34,6 +34,9 @@ procedure SIRegister_TEmail(CL: TPSPascalCompiler);
 procedure SIRegister_THttpClient(CL: TPSPascalCompiler);
 procedure SIRegister_TUDPClient(CL: TPSPascalCompiler);
 procedure SIRegister_TTCPClient(CL: TPSPascalCompiler);
+procedure SIRegister_TTCPServer(CL: TPSPascalCompiler);
+procedure SIRegister_TSocketIdContext(CL: TPSPascalCompiler);
+procedure SIRegister_TSocketIdTCPConnection(CL: TPSPascalCompiler);
 procedure SIRegister_TSocketIOHandler(CL: TPSPascalCompiler);
 procedure SIRegister_Socket(CL: TPSPascalCompiler);
 
@@ -43,6 +46,9 @@ procedure RIRegister_TEmail(CL: TPSRuntimeClassImporter);
 procedure RIRegister_THttpClient(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TUDPClient(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TTCPClient(CL: TPSRuntimeClassImporter);
+procedure RIRegister_TTCPServer(CL: TPSRuntimeClassImporter);
+procedure RIRegister_TSocketIdContext(CL: TPSRuntimeClassImporter);
+procedure RIRegister_TSocketIdTCPConnection(CL: TPSRuntimeClassImporter);
 procedure RIRegister_TSocketIOHandler(CL: TPSRuntimeClassImporter);
 procedure RIRegister_Socket(CL: TPSRuntimeClassImporter);
 
@@ -70,6 +76,10 @@ uses
   ,IdAttachment
   ,IdAttachmentFile
   ,IdFTP
+  ,IdFTPCommon
+  ,IdTCPServer
+  ,IdContext
+  ,IdCustomTCPServer
   ,Socket
   ;
  
@@ -100,6 +110,7 @@ begin
     RegisterMethod('Procedure PutStream( ASource : TStream; ADeestFile : string)');
     RegisterMethod('Procedure RemoveDir( ADirname : string)');
     RegisterMethod('Procedure Rename( AsourceFile : string; AdestFile : string)');
+    RegisterMethod('Procedure Status( AStatus : TStrings)');
     RegisterMethod('Function Connected : boolean');
     RegisterMethod('Procedure Disconnect');
     RegisterMethod('Function Size( AFilename : string) : integer');
@@ -109,6 +120,7 @@ begin
     RegisterProperty('Username', 'string', iptrw);
     RegisterProperty('Port', 'integer', iptrw);
     RegisterProperty('ListResult', 'TStrings', iptr);
+    RegisterProperty('OnStatus', 'TOnStatusEvent', iptrw);
   end;
 end;
 
@@ -181,6 +193,52 @@ begin
 end;
 
 (*----------------------------------------------------------------------------*)
+procedure SIRegister_TTCPServer(CL: TPSPascalCompiler);
+begin
+  //with RegClassS(CL,'TObject', 'TTCPServer') do
+  with CL.AddClassN(CL.FindClass('TObject'),'TTCPServer') do
+  begin
+    RegisterMethod('Constructor Create');
+    RegisterProperty('Active', 'Boolean', iptrw);
+    RegisterProperty('DefaultPort', 'integer', iptrw);
+    RegisterProperty('ListenQueue', 'integer', iptrw);
+    RegisterProperty('MaxConnections', 'Integer', iptrw);
+    RegisterProperty('OnExecute', 'TSocketIdServerThreadEvent', iptrw);
+    RegisterProperty('OnConnect', 'TSocketIdServerThreadEvent', iptrw);
+    RegisterProperty('OnDisconnect', 'TSocketIdServerThreadEvent', iptrw);
+    RegisterProperty('OnException', 'TSocketIdServerThreadExceptionEvent', iptrw);
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
+procedure SIRegister_TSocketIdContext(CL: TPSPascalCompiler);
+begin
+  //with RegClassS(CL,'TObject', 'TSocketIdContext') do
+  with CL.AddClassN(CL.FindClass('TObject'),'TSocketIdContext') do
+  begin
+    RegisterMethod('Procedure SetIdContext( IdContext : TIdContext)');
+    RegisterMethod('Procedure RemoveFromList');
+    RegisterProperty('Connection', 'TSocketIdTCPConnection', iptr);
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
+procedure SIRegister_TSocketIdTCPConnection(CL: TPSPascalCompiler);
+begin
+  //with RegClassS(CL,'TObject', 'TSocketIdTCPConnection') do
+  with CL.AddClassN(CL.FindClass('TObject'),'TSocketIdTCPConnection') do
+  begin
+    RegisterMethod('Procedure SetSocketIOHandler( const Value : TSocketIOHandler)');
+    RegisterMethod('Function Connected : Boolean');
+    RegisterProperty('IOHandler', 'TSocketIOHandler', iptrw);
+    RegisterProperty('PeerIP', 'string', iptr);
+    RegisterProperty('PeerPort', 'integer', iptr);
+    RegisterProperty('IP', 'string', iptr);
+    RegisterProperty('Port', 'integer', iptr);
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
 procedure SIRegister_TSocketIOHandler(CL: TPSPascalCompiler);
 begin
   //with RegClassS(CL,'TObject', 'TSocketIOHandler') do
@@ -199,14 +257,31 @@ end;
 procedure SIRegister_Socket(CL: TPSPascalCompiler);
 begin
   SIRegister_TSocketIOHandler(CL);
+  SIRegister_TSocketIdTCPConnection(CL);
+  SIRegister_TSocketIdContext(CL);
+  CL.AddTypeS('TSocketIdServerThreadExceptionEvent', 'Procedure ( AContext : TS'
+   +'ocketIdContext; AException : string)');
+  CL.AddTypeS('TSocketIdServerThreadEvent', 'Procedure ( AContext : TSocketIdCo'
+   +'ntext)');
+  SIRegister_TTCPServer(CL);
   SIRegister_TTCPClient(CL);
   SIRegister_TUDPClient(CL);
   SIRegister_THttpClient(CL);
   SIRegister_TEmail(CL);
+  CL.AddTypeS('TOnStatusEvent', 'Procedure ( ASender : TObject; AStatusText : s'
+   +'tring)');
   SIRegister_TFTP(CL);
 end;
 
 (* === run-time registration functions === *)
+(*----------------------------------------------------------------------------*)
+procedure TFTPOnStatus_W(Self: TFTP; const T: TOnStatusEvent);
+begin Self.OnStatus := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TFTPOnStatus_R(Self: TFTP; var T: TOnStatusEvent);
+begin T := Self.OnStatus; end;
+
 (*----------------------------------------------------------------------------*)
 procedure TFTPListResult_R(Self: TFTP; var T: TStrings);
 begin T := Self.ListResult; end;
@@ -320,6 +395,98 @@ procedure TTCPClientBoundIP_R(Self: TTCPClient; var T: string);
 begin T := Self.BoundIP; end;
 
 (*----------------------------------------------------------------------------*)
+procedure TTCPServerOnException_W(Self: TTCPServer; const T: TSocketIdServerThreadExceptionEvent);
+begin Self.OnException := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerOnException_R(Self: TTCPServer; var T: TSocketIdServerThreadExceptionEvent);
+begin T := Self.OnException; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerOnDisconnect_W(Self: TTCPServer; const T: TSocketIdServerThreadEvent);
+begin Self.OnDisconnect := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerOnDisconnect_R(Self: TTCPServer; var T: TSocketIdServerThreadEvent);
+begin T := Self.OnDisconnect; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerOnConnect_W(Self: TTCPServer; const T: TSocketIdServerThreadEvent);
+begin Self.OnConnect := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerOnConnect_R(Self: TTCPServer; var T: TSocketIdServerThreadEvent);
+begin T := Self.OnConnect; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerOnExecute_W(Self: TTCPServer; const T: TSocketIdServerThreadEvent);
+begin Self.OnExecute := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerOnExecute_R(Self: TTCPServer; var T: TSocketIdServerThreadEvent);
+begin T := Self.OnExecute; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerMaxConnections_W(Self: TTCPServer; const T: Integer);
+begin Self.MaxConnections := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerMaxConnections_R(Self: TTCPServer; var T: Integer);
+begin T := Self.MaxConnections; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerListenQueue_W(Self: TTCPServer; const T: integer);
+begin Self.ListenQueue := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerListenQueue_R(Self: TTCPServer; var T: integer);
+begin T := Self.ListenQueue; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerDefaultPort_W(Self: TTCPServer; const T: integer);
+begin Self.DefaultPort := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerDefaultPort_R(Self: TTCPServer; var T: integer);
+begin T := Self.DefaultPort; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerActive_W(Self: TTCPServer; const T: Boolean);
+begin Self.Active := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TTCPServerActive_R(Self: TTCPServer; var T: Boolean);
+begin T := Self.Active; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSocketIdContextConnection_R(Self: TSocketIdContext; var T: TSocketIdTCPConnection);
+begin T := Self.Connection; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSocketIdTCPConnectionPort_R(Self: TSocketIdTCPConnection; var T: integer);
+begin T := Self.Port; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSocketIdTCPConnectionIP_R(Self: TSocketIdTCPConnection; var T: string);
+begin T := Self.IP; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSocketIdTCPConnectionPeerPort_R(Self: TSocketIdTCPConnection; var T: integer);
+begin T := Self.PeerPort; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSocketIdTCPConnectionPeerIP_R(Self: TSocketIdTCPConnection; var T: string);
+begin T := Self.PeerIP; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSocketIdTCPConnectionIOHandler_W(Self: TSocketIdTCPConnection; const T: TSocketIOHandler);
+begin Self.IOHandler := T; end;
+
+(*----------------------------------------------------------------------------*)
+procedure TSocketIdTCPConnectionIOHandler_R(Self: TSocketIdTCPConnection; var T: TSocketIOHandler);
+begin T := Self.IOHandler; end;
+
+(*----------------------------------------------------------------------------*)
 procedure RIRegister_TFTP(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TFTP) do
@@ -338,6 +505,7 @@ begin
     RegisterMethod(@TFTP.PutStream, 'PutStream');
     RegisterMethod(@TFTP.RemoveDir, 'RemoveDir');
     RegisterMethod(@TFTP.Rename, 'Rename');
+    RegisterMethod(@TFTP.Status, 'Status');
     RegisterMethod(@TFTP.Connected, 'Connected');
     RegisterMethod(@TFTP.Disconnect, 'Disconnect');
     RegisterMethod(@TFTP.Size, 'Size');
@@ -347,6 +515,7 @@ begin
     RegisterPropertyHelper(@TFTPUsername_R,@TFTPUsername_W,'Username');
     RegisterPropertyHelper(@TFTPPort_R,@TFTPPort_W,'Port');
     RegisterPropertyHelper(@TFTPListResult_R,nil,'ListResult');
+    RegisterPropertyHelper(@TFTPOnStatus_R,@TFTPOnStatus_W,'OnStatus');
   end;
 end;
 
@@ -415,6 +584,49 @@ begin
 end;
 
 (*----------------------------------------------------------------------------*)
+procedure RIRegister_TTCPServer(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TTCPServer) do
+  begin
+    RegisterConstructor(@TTCPServer.Create, 'Create');
+    RegisterPropertyHelper(@TTCPServerActive_R,@TTCPServerActive_W,'Active');
+    RegisterPropertyHelper(@TTCPServerDefaultPort_R,@TTCPServerDefaultPort_W,'DefaultPort');
+    RegisterPropertyHelper(@TTCPServerListenQueue_R,@TTCPServerListenQueue_W,'ListenQueue');
+    RegisterPropertyHelper(@TTCPServerMaxConnections_R,@TTCPServerMaxConnections_W,'MaxConnections');
+    RegisterPropertyHelper(@TTCPServerOnExecute_R,@TTCPServerOnExecute_W,'OnExecute');
+    RegisterPropertyHelper(@TTCPServerOnConnect_R,@TTCPServerOnConnect_W,'OnConnect');
+    RegisterPropertyHelper(@TTCPServerOnDisconnect_R,@TTCPServerOnDisconnect_W,'OnDisconnect');
+    RegisterPropertyHelper(@TTCPServerOnException_R,@TTCPServerOnException_W,'OnException');
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
+procedure RIRegister_TSocketIdContext(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TSocketIdContext) do
+  begin
+    RegisterMethod(@TSocketIdContext.SetIdContext, 'SetIdContext');
+    RegisterMethod(@TSocketIdContext.RemoveFromList, 'RemoveFromList');
+    RegisterPropertyHelper(@TSocketIdContextConnection_R,nil,'Connection');
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
+procedure RIRegister_TSocketIdTCPConnection(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TSocketIdTCPConnection) do
+  begin
+    RegisterMethod(@TSocketIdTCPConnection.SetSocketIOHandler, 'SetSocketIOHandler');
+    RegisterMethod(@TSocketIdTCPConnection.Connected, 'Connected');
+    RegisterPropertyHelper(@TSocketIdTCPConnectionIOHandler_R,@TSocketIdTCPConnectionIOHandler_W,'IOHandler');
+    RegisterPropertyHelper(@TSocketIdTCPConnectionPeerIP_R,nil,'PeerIP');
+    RegisterPropertyHelper(@TSocketIdTCPConnectionPeerPort_R,nil,'PeerPort');
+    RegisterPropertyHelper(@TSocketIdTCPConnectionIP_R,nil,'IP');
+    RegisterPropertyHelper(@TSocketIdTCPConnectionPort_R,nil,'Port');
+  end;
+end;
+
+(*----------------------------------------------------------------------------*)
 procedure RIRegister_TSocketIOHandler(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TSocketIOHandler) do
@@ -432,6 +644,9 @@ end;
 procedure RIRegister_Socket(CL: TPSRuntimeClassImporter);
 begin
   RIRegister_TSocketIOHandler(CL);
+  RIRegister_TSocketIdTCPConnection(CL);
+  RIRegister_TSocketIdContext(CL);
+  RIRegister_TTCPServer(CL);
   RIRegister_TTCPClient(CL);
   RIRegister_TUDPClient(CL);
   RIRegister_THttpClient(CL);

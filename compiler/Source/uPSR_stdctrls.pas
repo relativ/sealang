@@ -30,7 +30,7 @@ procedure RIRegister_stdctrls(cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  sysutils, classes{$IFDEF CLX}, QControls, QStdCtrls, QGraphics{$ELSE}, controls, stdctrls, Graphics{$ENDIF}{$IFDEF FPC},buttons{$ENDIF};
+  sysutils, classes{$IFDEF CLX}, QControls, QStdCtrls, QGraphics{$ELSE}, Vcl.controls, Vcl.stdctrls, Vcl.Graphics{$ENDIF}{$IFDEF FPC},buttons{$ENDIF};
 
 procedure RIRegisterTCUSTOMGROUPBOX(Cl: TPSRuntimeClassImporter);
 begin

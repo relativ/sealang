@@ -23,7 +23,7 @@ procedure RIRegister_Controls(Cl: TPSRuntimeClassImporter);
 implementation
 {$IFNDEF FPC}
 uses
-  Classes{$IFDEF CLX}, QControls, QGraphics{$ELSE}, Controls, Graphics, Windows{$ENDIF};
+  Classes{$IFDEF CLX}, QControls, QGraphics{$ELSE}, Vcl.Controls, Vcl.Graphics, Windows{$ENDIF};
 {$ELSE}
 uses
   Classes, Controls, Graphics;

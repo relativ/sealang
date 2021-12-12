@@ -23,7 +23,7 @@ procedure SIRegister_Graphics(Cl: TPSPascalCompiler; Streams: Boolean);
 implementation
 {$IFNDEF PS_NOGRAPHCONST}
 uses
-  {$IFDEF CLX}QGraphics{$ELSE}Graphics{$ENDIF};
+  {$IFDEF CLX}QGraphics{$ELSE}Vcl.Graphics{$ENDIF};
 {$ELSE}
 {$IFNDEF CLX}
 {$IFNDEF FPC}

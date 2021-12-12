@@ -66,6 +66,7 @@ begin
     RegisterProperty('Items', 'TJSONItems', iptr);
     RegisterProperty('ListItems', 'TJSONListItems', iptr);
     RegisterProperty('Value', 'Variant', iptr);
+	RegisterProperty('Name', 'string', iptr);
     RegisterProperty('AsString', 'string', iptr);
     RegisterProperty('AsInteger', 'integer', iptr);
     RegisterProperty('AsBoolean', 'boolean', iptr);
@@ -148,6 +149,9 @@ begin T := Self.AsString; end;
 procedure TJSONValue_R(Self: TJSON; var T: Variant);
 begin T := Self.Value; end;
 
+procedure TJSONName_R(Self: TJSON; var T: Variant);
+begin T := Self.Name; end;
+
 (*----------------------------------------------------------------------------*)
 procedure TJSONListItems_R(Self: TJSON; var T: TJSONListItems);
 begin T := Self.ListItems; end;
@@ -192,6 +196,7 @@ begin
     RegisterPropertyHelper(@TJSONItems_R,nil,'Items');
     RegisterPropertyHelper(@TJSONListItems_R,nil,'ListItems');
     RegisterPropertyHelper(@TJSONValue_R,nil,'Value');
+	RegisterPropertyHelper(@TJSONName_R,nil,'Name');
     RegisterPropertyHelper(@TJSONAsString_R,nil,'AsString');
     RegisterPropertyHelper(@TJSONAsInteger_R,nil,'AsInteger');
     RegisterPropertyHelper(@TJSONAsBoolean_R,nil,'AsBoolean');

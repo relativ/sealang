@@ -11,8 +11,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp,
   MVCFramework.Session, SessionUnit,
   System.Generics.Collections, uPSC_DB, uPSR_DB,
   Jpeg,
-  pngimage, ReqMulti, IdComponent, IdBaseComponent, IdTCPConnection,
-  IdTCPClient, IdExplicitTLSClientServerBase, IdFTP;
+  pngimage, ReqMulti;
 
 type
   PPSPascalCompiler = ^ TPSPascalCompiler;
@@ -373,7 +372,7 @@ begin
   if findfirst(ExtensionPath + '*.dll', faAnyFile, searchResult) = 0 then
   begin
     repeat
-      if searchResult.Name = 'mod_pascal.dll' then continue;
+      if searchResult.Name = 'sealang.dll' then continue;
 
       dllHandle := LoadLibrary(PWideChar(ExtensionPath + searchResult.Name));
 
@@ -401,7 +400,6 @@ var
   PSImport_DB: TPSImport_DB;
   Plugin: TPSPluginItem;
 
-
   procedure Outputtxt(const s: string);
   begin
     Response.Content := Response.Content + s;
@@ -424,6 +422,8 @@ begin
       begin
         (PSScript.Plugins.Add as TPSPluginItem).Plugin := PluginList.Items[I];
       end;
+
+
 
       PSScript.MainFileName := MainFileName;
       RunTimeVariables:= TDictionary<string, string>.Create();
@@ -452,7 +452,7 @@ begin
 
         Outputtxt('Failed when compiling <br/>');
         for i:= 0 to PSScript.CompilerMessageCount - 1 do
-          Outputtxt(PSScript.CompilerMessages[i].MessageToString + #13);
+          Outputtxt(PSScript.CompilerMessages[0].MessageToString + #13);
       end;
       PSScript.Free;
       RunTimeVariables.Free;

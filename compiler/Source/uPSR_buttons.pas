@@ -13,7 +13,7 @@ procedure RIRegister_Buttons(Cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  Classes{$IFDEF CLX}, QControls, QButtons{$ELSE}, Controls, Buttons{$ENDIF};
+  Classes{$IFDEF CLX}, QControls, QButtons{$ELSE}, Vcl.Controls, Vcl.Buttons{$ENDIF};
 
 procedure RIRegisterTSPEEDBUTTON(Cl: TPSRuntimeClassImporter);
 begin

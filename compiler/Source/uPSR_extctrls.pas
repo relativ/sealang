@@ -30,7 +30,7 @@ uses
   {$IFDEF CLX}
   QExtCtrls, QGraphics;
   {$ELSE}
-  ExtCtrls, Graphics;
+  Vcl.ExtCtrls, Vcl.Graphics;
   {$ENDIF}
 
 procedure RIRegisterTSHAPE(Cl: TPSRuntimeClassImporter);

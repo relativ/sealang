@@ -6,7 +6,7 @@ uses SysUtils ,Classes, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdIOHandler, IdGlobal, IdUDPBase,
   IdUDPClient, IdHTTP, IdMultipartFormData, IdMessageClient, IdSMTPBase, IdSMTP,
   IdMessage, IdEMailAddress, IdAttachment, IdAttachmentFile,
-  IdFTP, IdFTPCommon ;
+  IdFTP, IdFTPCommon, IdTCPServer, IdContext, IdCustomTCPServer;
 
 type
 
@@ -20,6 +20,76 @@ type
     procedure WriteStream(Value: TStream; ASize: integer);
     procedure ReadStream(AStream: TStream; AByteCount: integer = -1);
     function ReadLn: string;
+  end;
+
+  TSocketIdTCPConnection = class(TObject)
+  private
+    FIdTCPConnection: TIdTCPConnection;
+    FSocketIOHandler: TSocketIOHandler;
+
+    function GetIP: string;
+    function GetPeerIP: string;
+    function GetPeerPort: integer;
+    function GetPort: integer;
+  public
+    destructor Destroy; override;
+    procedure SetSocketIOHandler(const Value: TSocketIOHandler);
+    function Connected: Boolean;
+    property IOHandler: TSocketIOHandler read FSocketIOHandler write SetSocketIOHandler;
+    property PeerIP: string read GetPeerIP;
+    property PeerPort: integer read GetPeerPort;
+    property IP: string read GetIP;
+    property Port: integer read GetPort;
+  end;
+
+  TSocketIdContext = class(TObject)
+  private
+    FIdContext: TIdContext;
+    FSocketIdTCPConnection: TSocketIdTCPConnection;
+  public
+    destructor Destroy; override;
+    procedure SetIdContext(IdContext: TIdContext);
+    procedure RemoveFromList;
+    property Connection: TSocketIdTCPConnection read FSocketIdTCPConnection;
+
+  end;
+
+  TSocketIdServerThreadExceptionEvent = procedure(AContext: TSocketIdContext; AException: string) of object;
+  TSocketIdServerThreadEvent = procedure(AContext: TSocketIdContext) of object;
+
+  TTCPServer = class(TObject)
+  private
+    FIdTCPServer: TIdTcpServer;
+    FOnExecute: TSocketIdServerThreadEvent;
+    FOnConnect: TSocketIdServerThreadEvent;
+    FOnDisconnect: TSocketIdServerThreadEvent;
+    FOnException: TSocketIdServerThreadExceptionEvent;
+    function GetActive: boolean;
+    function GetDefaultPort: integer;
+    function GetListenQueue: integer;
+    function GetMaxConnections: integer;
+    procedure SetActive(val: boolean);
+    procedure SetDefaultPort(val: integer);
+    procedure SetListenQueue(val: integer);
+    procedure SetMaxConnections(val: integer);
+
+    procedure IdTCPServerOnExecute(AContext: TIdContext);
+    procedure IdTCPServerOnConnect(AContext: TIdContext);
+    procedure IdTCPServerOnDisconnect(AContext: TIdContext);
+    procedure IdTCPServerOnException(AContext: TIdContext; AException: Exception);
+
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Active: Boolean read GetActive write SetActive;
+    property DefaultPort: integer read GetDefaultPort write SetDefaultPort;
+    property ListenQueue: integer read GetListenQueue write SetListenQueue;
+    property MaxConnections: Integer read GetMaxConnections write SetMaxConnections;
+
+    property OnExecute: TSocketIdServerThreadEvent read FOnExecute write FOnExecute;
+    property OnConnect: TSocketIdServerThreadEvent read FOnConnect write FOnConnect;
+    property OnDisconnect: TSocketIdServerThreadEvent read FOnDisconnect write FOnDisconnect;
+    property OnException: TSocketIdServerThreadExceptionEvent read FOnException write FOnException;
   end;
 
   TTCPClient = class(TObject)
@@ -280,12 +350,12 @@ end;
 
 procedure TSocketIOHandler.Write(Value: string);
 begin
-  FIOHandler.Write(Value, IndyTextEncoding_UTF8);
+  FIOHandler.Write(Value, IndyUTF8Encoding);
 end;
 
 procedure TSocketIOHandler.WriteLn(Value: string);
 begin
-  Write(Value + chr(13));
+  FIOHandler.WriteLn(Value, IndyUTF8Encoding);
 end;
 
 { TUDPClient }
@@ -653,6 +723,186 @@ end;
 procedure TFTP.Status(AStatus: TStrings);
 begin
   try FIdFtp.Status(AStatus); except end;
+end;
+
+{ TTCPServer }
+
+constructor TTCPServer.Create;
+begin
+  FIdTCPServer := TIdTCPServer.Create(nil);
+  FIdTCPServer.OnExecute := IdTCPServerOnExecute;
+  FIdTCPServer.OnConnect := IdTCPServerOnConnect;
+  FIdTCPServer.OnDisconnect := IdTCPServerOnDisconnect;
+  FIdTCPServer.OnException := IdTCPServerOnException;
+end;
+
+destructor TTCPServer.Destroy;
+begin
+  FIdTCPServer.Active := false;
+  FIdTCPServer.Free;
+  inherited;
+end;
+
+procedure TTCPServer.IdTCPServerOnExecute(AContext: TIdContext);
+var
+  tmp: TSocketIdContext;
+begin
+  if Assigned(FOnExecute) then
+  begin
+
+    tmp:= TSocketIdContext.Create;
+    tmp.SetIdContext(AContext);
+    FOnExecute(tmp);
+    tmp.Free;
+  end;
+
+end;
+
+procedure TTCPServer.IdTCPServerOnConnect(AContext: TIdContext);
+var
+  tmp: TSocketIdContext;
+begin
+  if Assigned(FOnConnect) then
+  begin
+    AContext.Connection.IOHandler.DefStringEncoding := IndyUTF8Encoding;
+    tmp:= TSocketIdContext.Create;
+    tmp.SetIdContext(AContext);
+    FOnConnect(tmp);
+    tmp.Free;
+  end;
+
+end;
+
+procedure TTCPServer.IdTCPServerOnDisconnect(AContext: TIdContext);
+var
+  tmp: TSocketIdContext;
+begin
+  if Assigned(FOnDisconnect) then
+  begin
+    tmp:= TSocketIdContext.Create;
+    tmp.SetIdContext(AContext);
+    FOnDisconnect(tmp);
+    tmp.Free;
+  end;
+
+end;
+
+procedure TTCPServer.IdTCPServerOnException(AContext: TIdContext; AException: Exception);
+var
+  tmp: TSocketIdContext;
+begin
+  if Assigned(FOnException) then
+  begin
+    tmp:= TSocketIdContext.Create;
+    tmp.SetIdContext(AContext);
+    FOnException(tmp, AException.Message);
+    tmp.Free;
+  end;
+
+end;
+
+function TTCPServer.GetActive: boolean;
+begin
+  Result := FIdTCPServer.Active;
+end;
+
+function TTCPServer.GetDefaultPort: integer;
+begin
+  Result := FIdTCPServer.DefaultPort;
+end;
+
+function TTCPServer.GetListenQueue: integer;
+begin
+  Result := FIdTCPServer.ListenQueue;
+end;
+
+function TTCPServer.GetMaxConnections: integer;
+begin
+  Result := FIdTCPServer.MaxConnections;
+end;
+
+procedure TTCPServer.SetActive(val: boolean);
+begin
+  FIdTCPServer.Active := val;
+end;
+
+procedure TTCPServer.SetDefaultPort(val: integer);
+begin
+  FIdTCPServer.DefaultPort := val;
+end;
+
+procedure TTCPServer.SetListenQueue(val: integer);
+begin
+  FIdTCPServer.ListenQueue := val;
+end;
+
+procedure TTCPServer.SetMaxConnections(val: integer);
+begin
+  FIdTCPServer.MaxConnections := val;
+end;
+
+{ TSocketIdContext }
+
+destructor TSocketIdContext.Destroy;
+begin
+  if FSocketIdTCPConnection <> nil then
+    FSocketIdTCPConnection.Free;
+  inherited;
+end;
+
+procedure TSocketIdContext.RemoveFromList;
+begin
+  FIdContext.RemoveFromList;
+end;
+
+procedure TSocketIdContext.SetIdContext(IdContext: TIdContext);
+var
+  FIO: TSocketIOHandler;
+begin
+  FIdContext := IdContext;
+  FIO := TSocketIOHandler.Create;
+  FIO.SetIOHandler(IdContext.Connection.IOHandler);
+  FSocketIdTCPConnection := TSocketIdTCPConnection.Create;
+  FSocketIdTCPConnection.SetSocketIOHandler(FIO);
+end;
+
+{ TSocketIdTCPConnection }
+
+function TSocketIdTCPConnection.Connected: Boolean;
+begin
+  Result := FIdTCPConnection.Connected;
+end;
+
+destructor TSocketIdTCPConnection.Destroy;
+begin
+  FSocketIOHandler.Free;
+  inherited;
+end;
+
+function TSocketIdTCPConnection.GetIP: string;
+begin
+  Result := FIdTCPConnection.Socket.Binding.IP;
+end;
+
+function TSocketIdTCPConnection.GetPeerIP: string;
+begin
+  Result := FIdTCPConnection.Socket.Binding.PeerIP;
+end;
+
+function TSocketIdTCPConnection.GetPeerPort: integer;
+begin
+  Result := FIdTCPConnection.Socket.Binding.PeerPort;
+end;
+
+function TSocketIdTCPConnection.GetPort: integer;
+begin
+  Result := FIdTCPConnection.Socket.Binding.Port;
+end;
+
+procedure TSocketIdTCPConnection.SetSocketIOHandler(
+  const Value: TSocketIOHandler);
+begin
+  FSocketIOHandler := Value;
 end;
 
 end.

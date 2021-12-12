@@ -31,6 +31,7 @@ type
       FValue: Variant;
       FItems: TJSONItems;
       FListItems: TJSONListItems;
+	  FName: string;
       function GetJSONByNameOrIndex(const AData: variant): TJSON;
       function GetString: string;
       function GetInteger: integer;
@@ -52,6 +53,7 @@ type
       property Items: TJSONItems read FItems;
       property ListItems: TJSONListItems read FListItems;
       property Value: Variant read FValue;
+	  property Name: string read FName;
       property AsString: string read GetString;
       property AsInteger: integer read GetInteger;
       property AsBoolean: boolean read GetBoolean;
@@ -192,7 +194,25 @@ var
   inString, escaped: boolean;
   temp: variant;
   obj: TJSON;
-
+	
+  function getName():  string;
+  var
+	  resultS,s: string;
+    i: integer;
+  begin
+    s := trim(AJSON.Substring(tag-1, index-tag));
+    for i := 0 to s.Length - 1 do
+    begin
+      case s.chars[i] of
+        '\', '"': continue;
+		',', '}': break;
+      else
+        resultS := resultS + s.chars[i];
+      end;
+    end;
+    result := resultS;
+  end;
+  
   function getValue: variant;
   var
     prev, prevPrev: char;
@@ -310,6 +330,7 @@ begin
           obj := TJSON.Create(obj);
         obj.FIsKeyValue := false;
         obj.FIsDict := true;
+		obj.FName   := getName();
         obj.FItems := TJSONItems.Create;
         if not assigned(result) then
         begin
@@ -337,6 +358,7 @@ begin
           obj := TJSON.Create(obj);
         obj.FIsKeyValue := false;
         obj.FIsList := true;
+		obj.FName   := getName();
         obj.FListItems := TJSONListItems.Create;
         if not assigned(result) then
         begin

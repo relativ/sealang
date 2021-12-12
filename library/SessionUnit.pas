@@ -5,16 +5,22 @@ interface
 uses
    SysUtils
   ,Classes
-  ,MVCFramework.Session;
+  ,MVCFramework.Session,
+  System.Generics.Collections;
 
 
   type
     TSession = class(TObject)
     private
       FSessionID: string;
+      FSocketList: TDictionary<string, pointer>;
     public
+      constructor Create;
+      destructor Destroy; override;
       function GetValue(name: string): string;
+      function GetPointer(name: string): pointer;
       procedure SetValue(name: string; value: string);
+      procedure SetPointer(name: string; value: pointer);
       procedure Delete(name: string);
       procedure SetSessionId(sessionId: string);
 
@@ -27,6 +33,12 @@ implementation
 
 { TSession }
 
+
+constructor TSession.Create;
+begin
+  inherited;
+  FSocketList:= TDictionary<string, pointer>.Create();
+end;
 
 procedure TSession.Delete(name: string);
 var
@@ -55,9 +67,31 @@ begin
 
 end;
 
+destructor TSession.Destroy;
+begin
+  FSocketList.Free;
+  inherited;
+end;
+
+function TSession.GetPointer(name: string): pointer;
+begin
+
+  Result := FSocketList.Items[name]
+end;
+
 procedure TSession.SetSessionId(sessionId: string);
 begin
   FSessionID := sessionId;
+end;
+
+procedure TSession.SetPointer(name: string; value: pointer);
+var
+  pTmp: pointer;
+begin
+  if FSocketList.TryGetValue(name, pTmp) then
+    FSocketList.Items[name] := value
+  else
+    FSocketList.Add(name, value);
 end;
 
 procedure TSession.SetValue(name:string; value: string);
