@@ -10,7 +10,6 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poDesigned
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -115,11 +114,11 @@ object Form1: TForm1
     EnableStreams = True
     EnableClasses = True
     Left = 528
-    Top = 288
+    Top = 312
   end
   object PSImport_DateUtils1: TPSImport_DateUtils
     Left = 400
-    Top = 304
+    Top = 336
   end
   object PSImport_ComObj1: TPSImport_ComObj
     Left = 640
@@ -134,7 +133,7 @@ object Form1: TForm1
     EnableGraphics = True
     EnableControls = True
     Left = 544
-    Top = 232
+    Top = 240
   end
   object PSImport_StdCtrls1: TPSImport_StdCtrls
     EnableExtCtrls = True

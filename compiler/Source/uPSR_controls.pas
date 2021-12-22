@@ -26,7 +26,7 @@ uses
   Classes{$IFDEF CLX}, QControls, QGraphics{$ELSE}, Vcl.Controls, Vcl.Graphics, Windows{$ENDIF};
 {$ELSE}
 uses
-  Classes, Controls, Graphics;
+  Classes, Vcl.Controls, Vcl.Graphics;
 {$ENDIF}
 
 procedure TControlAlignR(Self: TControl; var T: Byte); begin T := Byte(Self.Align); end;

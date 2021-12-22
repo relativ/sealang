@@ -1,5 +1,4 @@
 package PascalScript_Core_D25;
-
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
