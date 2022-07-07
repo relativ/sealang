@@ -1,4 +1,4 @@
-Sealang is an opensource event based programming language for creating dynamic web pages like as php, nodejs, python.
+Sealang (techniques known as plum framework) is an opensource event based programming language for creating dynamic web pages like as php, nodejs, python.
 
 Configuring
 
